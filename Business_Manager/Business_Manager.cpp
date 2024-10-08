@@ -5,7 +5,7 @@ LPCTSTR lpszClass = TEXT("BusinessManager");
 HWND g_hFrameWnd;	//메인 프레임 윈도우 핸들
 HWND g_hMDIClient;	//클라이언트 윈도우 핸들
 
-//인사관리 프로그램(api)
+//인사관리 프로그램
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow) {
 
