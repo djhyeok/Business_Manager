@@ -180,7 +180,7 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 
 				//중복값인지 체크
 				for (i = 0; i < totB; i++) {
-					if (lstrcmp(buseo[i].code, tCode) == 0 || lstrcmp(buseo[i].name, tName) == 0) {
+					if (i != ind && (lstrcmp(buseo[i].code, tCode) == 0 || lstrcmp(buseo[i].name, tName) == 0)) {
 						isDup = TRUE;
 						break;
 					}
@@ -197,7 +197,7 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 
 					//리스트뷰 비우고 다시채움
 					ListView_DeleteAllItems(hBuseoList);		//리스트뷰 비움
-					MessageBox(hWnd, NULL, NULL, MB_OK);
+					
 					for (i = 0; i < totB; i++) {
 						LI.mask = LVIF_TEXT;
 						LI.iItem = i;
@@ -359,7 +359,7 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 
 				//중복값인지 체크
 				for (i = 0; i < totR; i++) {
-					if (lstrcmp(religion[i].code, tCode) == 0 || lstrcmp(religion[i].name, tName) == 0) {
+					if (i != ind && (lstrcmp(religion[i].code, tCode) == 0 || lstrcmp(religion[i].name, tName) == 0)) {
 						isDup = TRUE;
 						break;
 					}
@@ -373,8 +373,10 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 					//ind번째 religion의 값들을 바꿈
 					GetDlgItemText(hWnd, ID_CODE, religion[ind].code, 3);
 					GetDlgItemText(hWnd, ID_NAME, religion[ind].name, 21);
+
 					//리스트뷰 비우고 다시채움
-					ListView_DeleteAllItems(hReligionList);		//리스트뷰 비움
+					ListView_DeleteAllItems(hReligionList);
+
 					for (i = 0; i < totR; i++) {
 						LI.mask = LVIF_TEXT;
 						LI.iItem = i;
@@ -518,6 +520,7 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 			else {
 				isDup = !isDup;
 				MessageBox(hWnd, TEXT("값 중복"), NULL, MB_OK);
+
 			}
 
 			break;
@@ -536,7 +539,7 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 
 				//중복값인지 체크
 				for (i = 0; i < totP; i++) {
-					if (lstrcmp(position[i].code, tCode) == 0 || lstrcmp(position[i].name, tName) == 0) {
+					if (i != ind && (lstrcmp(position[i].code, tCode) == 0 || lstrcmp(position[i].name, tName) == 0)) {
 						isDup = TRUE;
 						break;
 					}
@@ -549,8 +552,10 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 					//ind번째 position의 값들을 바꿈
 					GetDlgItemText(hWnd, ID_CODE, position[ind].code, 3);
 					GetDlgItemText(hWnd, ID_NAME, position[ind].name, 21);
+
 					//리스트뷰 비우고 다시채움
 					ListView_DeleteAllItems(hPositionList);		//리스트뷰 비움
+
 					for (i = 0; i < totP; i++) {
 						LI.mask = LVIF_TEXT;
 						LI.iItem = i;

@@ -9,7 +9,7 @@
 
 #define IDM_WINDOWCHILD 8000
 
-//기초정보
+//기업 기초정보
 typedef struct base {
 	TCHAR code[3];	//구분코드
 	TCHAR name[21];	//이름
