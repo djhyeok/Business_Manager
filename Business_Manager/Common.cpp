@@ -14,7 +14,7 @@ BASE* buseo;		//부서
 BASE* position;		//직위
 BASE* religion;		//종교
 
-enum { IDC_INSERT = 1, IDC_MODIFY, IDC_DEL, ID_NAME, ID_CODE, ID_BLIST, ID_RLIST,ID_PLIST };
+enum { IDC_INSERT = 1, IDC_MODIFY, IDC_DEL, ID_NAME, ID_CODE, ID_BLIST, ID_RLIST, ID_PLIST };
 LRESULT CALLBACK MDIWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	CLIENTCREATESTRUCT ccs;
 	MDICREATESTRUCT mcs;
@@ -129,6 +129,7 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 		case IDC_INSERT:	//삽입버튼
 			lstrcpy(tCode, TEXT(""));
 			lstrcpy(tName, TEXT(""));
+
 			//부서코드와 부서이름 edit컨트롤의 값을 tCode,tName에 임시 저장
 			GetDlgItemText(hWnd, ID_CODE, tCode, 3);
 			GetDlgItemText(hWnd, ID_NAME, tName, 21);
@@ -140,6 +141,7 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 					break;
 				}
 			}
+
 			//중복되지 않았다면 부서 추가해서 리스트뷰에 다시 보임
 			if (isDup == FALSE) {
 				buseo = (BASE*)realloc(buseo, (totB + 1) * sizeof(BASE));	//부서 포인터 재할당
@@ -172,19 +174,38 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 				MessageBox(hWnd, TEXT("수정할 항목을 먼저 선택하십시오"), TEXT("알림"), MB_OK);
 			}
 			else {
-				//ind번째 buseo의 값들을 바꿈
-				GetDlgItemText(hWnd, ID_CODE, buseo[ind].code, 3);
-				GetDlgItemText(hWnd, ID_NAME, buseo[ind].name, 21);
-				//리스트뷰 비우고 다시채움
-				ListView_DeleteAllItems(hBuseoList);		//리스트뷰 비움
-				MessageBox(hWnd, NULL, NULL, MB_OK);
+				//부서코드와 부서이름 edit컨트롤의 값을 tCode,tName에 임시 저장
+				GetDlgItemText(hWnd, ID_CODE, tCode, 3);
+				GetDlgItemText(hWnd, ID_NAME, tName, 21);
+
+				//중복값인지 체크
 				for (i = 0; i < totB; i++) {
-					LI.mask = LVIF_TEXT;
-					LI.iItem = i;
-					LI.iSubItem = 0;
-					LI.pszText = buseo[i].code;
-					ListView_InsertItem(hBuseoList, &LI);
-					ListView_SetItemText(hBuseoList, i, 1, (LPWSTR)buseo[i].name);
+					if (lstrcmp(buseo[i].code, tCode) == 0 || lstrcmp(buseo[i].name, tName) == 0) {
+						isDup = TRUE;
+						break;
+					}
+				}
+				//중복값이라면 수정불가
+				if (isDup == TRUE) {
+					MessageBox(hWnd, TEXT("해당 값이 존재합니다. 다른 값을 입력하세요."), TEXT("값 중복"), MB_OK);
+					isDup = FALSE;
+				}
+				else {
+					//ind번째 buseo의 값들을 바꿈
+					GetDlgItemText(hWnd, ID_CODE, buseo[ind].code, 3);
+					GetDlgItemText(hWnd, ID_NAME, buseo[ind].name, 21);
+
+					//리스트뷰 비우고 다시채움
+					ListView_DeleteAllItems(hBuseoList);		//리스트뷰 비움
+					MessageBox(hWnd, NULL, NULL, MB_OK);
+					for (i = 0; i < totB; i++) {
+						LI.mask = LVIF_TEXT;
+						LI.iItem = i;
+						LI.iSubItem = 0;
+						LI.pszText = buseo[i].code;
+						ListView_InsertItem(hBuseoList, &LI);
+						ListView_SetItemText(hBuseoList, i, 1, (LPWSTR)buseo[i].name);
+					}
 				}
 			}
 			break;
@@ -330,18 +351,38 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 				MessageBox(hWnd, TEXT("수정할 항목을 먼저 선택하십시오"), TEXT("알림"), MB_OK);
 			}
 			else {
-				//ind번째 religion의 값들을 바꿈
-				GetDlgItemText(hWnd, ID_CODE, religion[ind].code, 3);
-				GetDlgItemText(hWnd, ID_NAME, religion[ind].name, 21);
-				//리스트뷰 비우고 다시채움
-				ListView_DeleteAllItems(hReligionList);		//리스트뷰 비움
+				lstrcpy(tCode, TEXT(""));
+				lstrcpy(tName, TEXT(""));
+				//종교코드와 종교이름 edit컨트롤의 값을 tCode,tName에 임시 저장
+				GetDlgItemText(hWnd, ID_CODE, tCode, 3);
+				GetDlgItemText(hWnd, ID_NAME, tName, 21);
+
+				//중복값인지 체크
 				for (i = 0; i < totR; i++) {
-					LI.mask = LVIF_TEXT;
-					LI.iItem = i;
-					LI.iSubItem = 0;
-					LI.pszText = religion[i].code;
-					ListView_InsertItem(hReligionList, &LI);
-					ListView_SetItemText(hReligionList, i, 1, (LPWSTR)religion[i].name);
+					if (lstrcmp(religion[i].code, tCode) == 0 || lstrcmp(religion[i].name, tName) == 0) {
+						isDup = TRUE;
+						break;
+					}
+				}
+				//중복값이라면 수정 불가
+				if (isDup == TRUE) {
+					MessageBox(hWnd, TEXT("해당 값이 존재합니다. 다른 값을 입력하세요."), TEXT("값 중복"), MB_OK);
+					isDup = FALSE;
+				}
+				else {
+					//ind번째 religion의 값들을 바꿈
+					GetDlgItemText(hWnd, ID_CODE, religion[ind].code, 3);
+					GetDlgItemText(hWnd, ID_NAME, religion[ind].name, 21);
+					//리스트뷰 비우고 다시채움
+					ListView_DeleteAllItems(hReligionList);		//리스트뷰 비움
+					for (i = 0; i < totR; i++) {
+						LI.mask = LVIF_TEXT;
+						LI.iItem = i;
+						LI.iSubItem = 0;
+						LI.pszText = religion[i].code;
+						ListView_InsertItem(hReligionList, &LI);
+						ListView_SetItemText(hReligionList, i, 1, (LPWSTR)religion[i].name);
+					}
 				}
 			}
 			break;
@@ -487,18 +528,37 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 				MessageBox(hWnd, TEXT("수정할 항목을 먼저 선택하십시오"), TEXT("알림"), MB_OK);
 			}
 			else {
-				//ind번째 position의 값들을 바꿈
-				GetDlgItemText(hWnd, ID_CODE, position[ind].code, 3);
-				GetDlgItemText(hWnd, ID_NAME, position[ind].name, 21);
-				//리스트뷰 비우고 다시채움
-				ListView_DeleteAllItems(hPositionList);		//리스트뷰 비움
+				lstrcpy(tCode, TEXT(""));
+				lstrcpy(tName, TEXT(""));
+				//직위코드와 직위이름 edit컨트롤의 값을 tCode,tName에 임시 저장
+				GetDlgItemText(hWnd, ID_CODE, tCode, 3);
+				GetDlgItemText(hWnd, ID_NAME, tName, 21);
+
+				//중복값인지 체크
 				for (i = 0; i < totP; i++) {
-					LI.mask = LVIF_TEXT;
-					LI.iItem = i;
-					LI.iSubItem = 0;
-					LI.pszText = position[i].code;
-					ListView_InsertItem(hPositionList, &LI);
-					ListView_SetItemText(hPositionList, i, 1, (LPWSTR)position[i].name);
+					if (lstrcmp(position[i].code, tCode) == 0 || lstrcmp(position[i].name, tName) == 0) {
+						isDup = TRUE;
+						break;
+					}
+				}
+				if (isDup == TRUE) {
+					MessageBox(hWnd, TEXT("해당 값이 존재합니다. 다른 값을 입력하세요."), TEXT("값 중복"), MB_OK);
+					isDup = FALSE;
+				}
+				else {
+					//ind번째 position의 값들을 바꿈
+					GetDlgItemText(hWnd, ID_CODE, position[ind].code, 3);
+					GetDlgItemText(hWnd, ID_NAME, position[ind].name, 21);
+					//리스트뷰 비우고 다시채움
+					ListView_DeleteAllItems(hPositionList);		//리스트뷰 비움
+					for (i = 0; i < totP; i++) {
+						LI.mask = LVIF_TEXT;
+						LI.iItem = i;
+						LI.iSubItem = 0;
+						LI.pszText = position[i].code;
+						ListView_InsertItem(hPositionList, &LI);
+						ListView_SetItemText(hPositionList, i, 1, (LPWSTR)position[i].name);
+					}
 				}
 			}
 			break;
