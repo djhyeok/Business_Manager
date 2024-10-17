@@ -1,9 +1,16 @@
 #include "Common.h"
+#include "Emp.h"
 
 HINSTANCE g_hInst;
 LPCTSTR lpszClass = TEXT("BusinessManager");
 HWND g_hFrameWnd;	//메인 프레임 윈도우 핸들
 HWND g_hMDIClient;	//클라이언트 윈도우 핸들
+int totB = 0;		//부서갯수
+int totP = 0;		//직위갯수
+int totR = 0;		//종교갯수
+BASE* buseo;		//부서
+BASE* position;		//직위
+BASE* religion;		//종교
 
 //인사관리 프로그램
 
@@ -16,7 +23,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 
 	WndClass.cbClsExtra = 0;
 	WndClass.cbWndExtra = 0;
-	WndClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+	WndClass.hbrBackground = (HBRUSH)CreateSolidBrush(RGB(243, 243, 243));
 	WndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
 	WndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	WndClass.hInstance = hInstance;
@@ -50,6 +57,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	//직위 MDI윈도우 클래스 등록
 	WndClass.lpszClassName = TEXT("InitPosMDI");
 	WndClass.lpfnWndProc = InitPositionMDIProc;
+	WndClass.hIcon = LoadIcon(NULL, IDI_ASTERISK);
+	WndClass.lpszMenuName = NULL;
+	WndClass.cbWndExtra = sizeof(DWORD);	//여분의 메모리
+	RegisterClass(&WndClass);
+
+	//사원기초정보 MDI윈도우 클래스 등록
+	WndClass.lpszClassName = TEXT("InitEMPMDI");
+	WndClass.lpfnWndProc = InitEMPMDIProc;
 	WndClass.hIcon = LoadIcon(NULL, IDI_ASTERISK);
 	WndClass.lpszMenuName = NULL;
 	WndClass.cbWndExtra = sizeof(DWORD);	//여분의 메모리

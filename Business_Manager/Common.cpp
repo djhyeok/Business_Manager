@@ -1,20 +1,22 @@
 #include "Common.h"
 
+#define IDM_WINDOWCHILD 8000
+
 extern HINSTANCE g_hInst;
 extern HWND g_hFrameWnd;	//메인 프레임 윈도우 핸들
 extern HWND g_hMDIClient;	//클라이언트 윈도우 핸들
-HWND hBuseoList;	//부서리스트뷰 핸들
-HWND hPositionList;	//직위리스트뷰 핸들
-HWND hReligionList;	//종교리스트뷰 핸들
-int totB = 0;		//부서갯수
-int totP = 0;		//직위갯수
-int totR = 0;		//종교갯수
-int selB = -1;		//선택된 부서 index
-BASE* buseo;		//부서
-BASE* position;		//직위
-BASE* religion;		//종교
+HWND hBuseoList;			//부서리스트뷰 핸들
+HWND hReligionList;			//종교리스트뷰 핸들
+HWND hPositionList;			//직위리스트뷰 핸들
+extern int totB;			//부서갯수
+extern int totP;			//직위갯수
+extern int totR;			//종교갯수
+extern BASE* buseo;			//부서
+extern BASE* position;		//직위
+extern BASE* religion;		//종교
 
 enum { IDC_INSERT = 1, IDC_MODIFY, IDC_DEL, ID_NAME, ID_CODE, ID_BLIST, ID_RLIST, ID_PLIST };
+
 LRESULT CALLBACK MDIWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	CLIENTCREATESTRUCT ccs;
 	MDICREATESTRUCT mcs;
@@ -56,6 +58,15 @@ LRESULT CALLBACK MDIWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPar
 		case IDM_RELIGION:	//기초정보관리(메뉴바)->종교
 			mcs.szClass = TEXT("InitRelMDI");
 			mcs.szTitle = TEXT("종교");
+			mcs.hOwner = g_hInst;
+			mcs.x = mcs.y = CW_USEDEFAULT;
+			mcs.cx = mcs.cy = CW_USEDEFAULT;
+			mcs.style = MDIS_ALLCHILDSTYLES;
+			SendMessage(g_hMDIClient, WM_MDICREATE, 0, (LPARAM)(LPMDICREATESTRUCT)&mcs);
+			break;
+		case ID_EMP:
+			mcs.szClass = TEXT("InitEMPMDI");
+			mcs.szTitle = TEXT("사원");
 			mcs.hOwner = g_hInst;
 			mcs.x = mcs.y = CW_USEDEFAULT;
 			mcs.cx = mcs.cy = CW_USEDEFAULT;
@@ -197,7 +208,7 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 
 					//리스트뷰 비우고 다시채움
 					ListView_DeleteAllItems(hBuseoList);		//리스트뷰 비움
-					
+
 					for (i = 0; i < totB; i++) {
 						LI.mask = LVIF_TEXT;
 						LI.iItem = i;
@@ -284,7 +295,7 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 		COL.iSubItem = 1;
 		ListView_InsertColumn(hReligionList, 1, &COL);
 		//리스트뷰에 종교 채우기
-		for (i = 0; i < totB; i++) {
+		for (i = 0; i < totR; i++) {
 			LI.mask = LVIF_TEXT;
 			LI.iItem = i;
 			LI.iSubItem = 0;

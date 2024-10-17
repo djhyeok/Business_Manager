@@ -4,10 +4,9 @@
 
 #include <windows.h>
 #include <commctrl.h>
-#include "Emp.h"
 #include "resource.h"
 
-#define IDM_WINDOWCHILD 8000
+
 
 //기업 기초정보
 typedef struct base {
@@ -16,10 +15,10 @@ typedef struct base {
 } BASE;
 
 
-LRESULT CALLBACK MDIWndProc(HWND, UINT, WPARAM, LPARAM);
-LRESULT CALLBACK InitBuseoMDIProc(HWND, UINT, WPARAM, LPARAM);
-LRESULT CALLBACK InitReligionMDIProc(HWND, UINT, WPARAM, LPARAM);
-LRESULT CALLBACK InitPositionMDIProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK MDIWndProc(HWND, UINT, WPARAM, LPARAM);			//메인 윈도우 프로시져
+LRESULT CALLBACK InitBuseoMDIProc(HWND, UINT, WPARAM, LPARAM);		//부서 MDI 윈도우 프로시져
+LRESULT CALLBACK InitReligionMDIProc(HWND, UINT, WPARAM, LPARAM);	//종교 MDI 윈도우 프로시져
+LRESULT CALLBACK InitPositionMDIProc(HWND, UINT, WPARAM, LPARAM);	//직위 MDI 윈도우 프로시져
 
 
 
