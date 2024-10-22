@@ -11,11 +11,11 @@ typedef struct base {
 
 //개인신상정보
 typedef struct personalInfo {
-	TCHAR pName[2][21];		//이름,영문이름
+	TCHAR pName[3][21];		//이름(한글,한자,영문)
 	TCHAR pIdNum[15];		//주민등록번호
 	TCHAR pAddress[51];		//주소
 	TCHAR pEmail[41];		//email
-	TCHAR pPhone[14];		//연락처
+	TCHAR pPhone[2][14];	//연락처1,2
 	TCHAR pPhysical[5][5];	//신장, 체중, 혈액형, 좌시력, 우시력
 	BOOL pFamily;			//기혼여부(FALSE:미혼, TRUE:기혼)
 	TCHAR pReligion[3];		//종교

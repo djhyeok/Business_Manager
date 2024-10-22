@@ -185,6 +185,7 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 		break;
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
+		SetBkMode(hdc, TRANSPARENT);
 		TextOut(hdc, 300, 155, TEXT("부서코드"), 4);
 		TextOut(hdc, 450, 155, TEXT("부서이름"), 4);
 		EndPaint(hWnd, &ps);
@@ -363,6 +364,7 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 		break;
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
+		SetBkMode(hdc, TRANSPARENT);
 		TextOut(hdc, 300, 155, TEXT("종교코드"), 4);
 		TextOut(hdc, 450, 155, TEXT("종교이름"), 4);
 		EndPaint(hWnd, &ps);
@@ -541,6 +543,7 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 		break;
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
+		SetBkMode(hdc, TRANSPARENT);
 		TextOut(hdc, 300, 155, TEXT("직위코드"), 4);
 		TextOut(hdc, 450, 155, TEXT("직위이름"), 4);
 		EndPaint(hWnd, &ps);

@@ -13,27 +13,28 @@ extern BASE* religion;		//종교
 extern EMP* workEmp;		//사원
 extern EMP* retireEmp;		//퇴직사원
 
-HWND hEMPList, hEmpNo, hEmpBuseo, hEmpPoscode, hEmpIndate, hEmpName, hEmpMale, hEmpFemale, hEmpBirth, hEmpAddress,
-hEmpEmail, hEmpPhone, hEmpHeight, hEmpWeight, hEmpLefteye, hEmpRighteye, hEmpSingle, hEmpMarriage, hEmpRelligion;	//컨트롤 핸들
+HWND hEMPList, hEmpNo, hEmpBuseo, hEmpPoscode, hEmpIndate, hEmpName1, hEmpName2, hEmpName3, hEmpMale, hEmpFemale, hEmpBirth, hEmpAddress,
+hEmpEmail, hEmpPhone1, hEmpPhone2, hEmpHeight, hEmpWeight, hEmpLefteye, hEmpRighteye, hEmpSingle, hEmpMarriage, hEmpRelligion;	//컨트롤 핸들
 enum {
-	ID_EMPLIST = 1, ID_EMPNO, ID_BUSEO, ID_POSCODE, ID_INDATE, ID_NAME, ID_MALE, ID_FEMALE, ID_BIRTH, ID_ADDRESS, ID_EMAIL,
-	ID_PHONE, ID_HEIGHT, ID_WEIGHT, ID_LEFTEYE, ID_RIGHTEYE, ID_SINGLE, ID_MARRIAGE, ID_RELLIGION, ID_RETIRE, IDC_INSERT, IDC_MODIFY, IDC_DELETE
+	ID_EMPLIST = 1, ID_EMPNO, ID_BUSEO, ID_POSCODE, ID_INDATE, ID_NAME1, ID_NAME2, ID_NAME3, ID_MALE, ID_FEMALE, ID_BIRTH, ID_ADDRESS, ID_EMAIL,
+	ID_PHONE1, ID_PHONE2, ID_HEIGHT, ID_WEIGHT, ID_LEFTEYE, ID_RIGHTEYE, ID_SINGLE, ID_MARRIAGE, ID_RELLIGION, ID_RETIRE, IDC_INSERT, IDC_MODIFY, IDC_DELETE
 };
 
 //사원관리 프로시져
 LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	LVCOLUMN COL;
+	HFONT hFont, OldFont;
 	HDC hdc;
 	PAINTSTRUCT ps;
 	INITCOMMONCONTROLSEX icex;
-	int i,ind;
+	int i, ind;
 
 	switch (iMessage) {
 	case WM_CREATE:
 		InitCommonControlsEx(&icex);
 
 		//리스트뷰 생성
-		hEMPList = CreateWindow(WC_LISTVIEW, NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SHOWSELALWAYS, 350, 10, 1130, 700, hWnd, (HMENU)ID_EMPLIST, g_hInst, NULL);
+		hEMPList = CreateWindow(WC_LISTVIEW, NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SHOWSELALWAYS, 350, 10, 1150, 700, hWnd, (HMENU)ID_EMPLIST, g_hInst, NULL);
 		//리스트에 헤더추가
 		//(사원번호,부서,직책,입사일,이름,성별,생년월일,주소,전자우편,연락처,신장,체중,시력(좌),시력(우),결혼관계,종교)
 		COL.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
@@ -73,156 +74,208 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 
 		COL.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 		COL.fmt = LVCFMT_LEFT;
-		COL.cx = 50;
-		COL.pszText = (LPWSTR)TEXT("성별");
+		COL.cx = 70;
+		COL.pszText = (LPWSTR)TEXT("영문이름");
 		COL.iSubItem = 5;
 		ListView_InsertColumn(hEMPList, 5, &COL);
 
 		COL.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 		COL.fmt = LVCFMT_LEFT;
-		COL.cx = 80;
-		COL.pszText = (LPWSTR)TEXT("생년월일");
+		COL.cx = 70;
+		COL.pszText = (LPWSTR)TEXT("한자이름");
 		COL.iSubItem = 6;
 		ListView_InsertColumn(hEMPList, 6, &COL);
 
 		COL.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 		COL.fmt = LVCFMT_LEFT;
-		COL.cx = 100;
-		COL.pszText = (LPWSTR)TEXT("주소");
+		COL.cx = 50;
+		COL.pszText = (LPWSTR)TEXT("성별");
 		COL.iSubItem = 7;
 		ListView_InsertColumn(hEMPList, 7, &COL);
 
 		COL.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 		COL.fmt = LVCFMT_LEFT;
-		COL.cx = 100;
-		COL.pszText = (LPWSTR)TEXT("전자우편");
+		COL.cx = 80;
+		COL.pszText = (LPWSTR)TEXT("생년월일");
 		COL.iSubItem = 8;
 		ListView_InsertColumn(hEMPList, 8, &COL);
 
 		COL.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 		COL.fmt = LVCFMT_LEFT;
 		COL.cx = 100;
-		COL.pszText = (LPWSTR)TEXT("연락처");
+		COL.pszText = (LPWSTR)TEXT("주소");
 		COL.iSubItem = 9;
 		ListView_InsertColumn(hEMPList, 9, &COL);
 
 		COL.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 		COL.fmt = LVCFMT_LEFT;
-		COL.cx = 40;
-		COL.pszText = (LPWSTR)TEXT("신장");
+		COL.cx = 100;
+		COL.pszText = (LPWSTR)TEXT("전자우편");
 		COL.iSubItem = 10;
 		ListView_InsertColumn(hEMPList, 10, &COL);
 
 		COL.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 		COL.fmt = LVCFMT_LEFT;
-		COL.cx = 40;
-		COL.pszText = (LPWSTR)TEXT("체중");
+		COL.cx = 100;
+		COL.pszText = (LPWSTR)TEXT("연락처1");
 		COL.iSubItem = 11;
 		ListView_InsertColumn(hEMPList, 11, &COL);
 
 		COL.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 		COL.fmt = LVCFMT_LEFT;
-		COL.cx = 60;
-		COL.pszText = (LPWSTR)TEXT("시력(좌)");
+		COL.cx = 100;
+		COL.pszText = (LPWSTR)TEXT("연락처2");
 		COL.iSubItem = 12;
 		ListView_InsertColumn(hEMPList, 12, &COL);
 
 		COL.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 		COL.fmt = LVCFMT_LEFT;
-		COL.cx = 60;
-		COL.pszText = (LPWSTR)TEXT("시력(우)");
+		COL.cx = 40;
+		COL.pszText = (LPWSTR)TEXT("신장");
 		COL.iSubItem = 13;
 		ListView_InsertColumn(hEMPList, 13, &COL);
 
 		COL.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 		COL.fmt = LVCFMT_LEFT;
+		COL.cx = 40;
+		COL.pszText = (LPWSTR)TEXT("체중");
+		COL.iSubItem = 14;
+		ListView_InsertColumn(hEMPList, 14, &COL);
+
+		COL.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+		COL.fmt = LVCFMT_LEFT;
 		COL.cx = 60;
 		COL.pszText = (LPWSTR)TEXT("결혼관계");
-		COL.iSubItem = 11;
-		ListView_InsertColumn(hEMPList, 11, &COL);
+		COL.iSubItem = 15;
+		ListView_InsertColumn(hEMPList, 15, &COL);
 
 		COL.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 		COL.fmt = LVCFMT_LEFT;
 		COL.cx = 50;
 		COL.pszText = (LPWSTR)TEXT("종교");
-		COL.iSubItem = 12;
-		ListView_InsertColumn(hEMPList, 12, &COL);
+		COL.iSubItem = 16;
+		ListView_InsertColumn(hEMPList, 16, &COL);
+
+		COL.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+		COL.fmt = LVCFMT_LEFT;
+		COL.cx = 60;
+		COL.pszText = (LPWSTR)TEXT("시력(좌)");
+		COL.iSubItem = 17;
+		ListView_InsertColumn(hEMPList, 17, &COL);
+
+		COL.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+		COL.fmt = LVCFMT_LEFT;
+		COL.cx = 60;
+		COL.pszText = (LPWSTR)TEXT("시력(우)");
+		COL.iSubItem = 18;
+		ListView_InsertColumn(hEMPList, 18, &COL);
 
 		//리스트뷰에 사원 채우기
 
 		//사원번호 에디트컨트롤 생성
-		hEmpNo = CreateWindow(TEXT("static"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER , 150, 33, 150, 25, hWnd, (HMENU)ID_EMPNO, g_hInst, NULL);
+		hEmpNo = CreateWindow(TEXT("static"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 150, 10, 150, 25, hWnd, (HMENU)ID_EMPNO, g_hInst, NULL);
 		//부서 콤보박스 생성
-		hEmpBuseo = CreateWindow(TEXT("combobox"), NULL, WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, 150, 70, 153, 200, hWnd, (HMENU)ID_BUSEO, g_hInst, NULL);
+		hEmpBuseo = CreateWindow(TEXT("combobox"), NULL, WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, 150, 45, 153, 200, hWnd, (HMENU)ID_BUSEO, g_hInst, NULL);
 		for (i = 0; i < totB; i++) {
 			SendMessage(hEmpBuseo, CB_ADDSTRING, 0, (LPARAM)buseo[i].name);
 		}
 		//직책 콤보박스 생성
-		hEmpPoscode = CreateWindow(TEXT("combobox"), NULL, WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, 150, 110, 153, 200, hWnd, (HMENU)ID_POSCODE, g_hInst, NULL);
+		hEmpPoscode = CreateWindow(TEXT("combobox"), NULL, WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, 150, 80, 153, 200, hWnd, (HMENU)ID_POSCODE, g_hInst, NULL);
 		for (i = 0; i < totP; i++) {
 			SendMessage(hEmpPoscode, CB_ADDSTRING, 0, (LPARAM)position[i].name);
 		}
 		//입사일 날짜컨트롤 생성
-		hEmpIndate = CreateWindow(DATETIMEPICK_CLASS, NULL, WS_BORDER | WS_CHILD | WS_VISIBLE | DTS_SHORTDATEFORMAT, 150, 150, 153, 25, hWnd, (HMENU)ID_INDATE, g_hInst, NULL);
+		hEmpIndate = CreateWindow(DATETIMEPICK_CLASS, NULL, WS_BORDER | WS_CHILD | WS_VISIBLE | DTS_SHORTDATEFORMAT, 150, 115, 153, 25, hWnd, (HMENU)ID_INDATE, g_hInst, NULL);
 		//이름 에디트컨트롤 생성
-		hEmpName = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 190, 150, 25, hWnd, (HMENU)ID_NAME, g_hInst, NULL);
+		hEmpName1 = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 150, 150, 25, hWnd, (HMENU)ID_NAME1, g_hInst, NULL);
+		hEmpName2 = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 185, 150, 25, hWnd, (HMENU)ID_NAME2, g_hInst, NULL);
+		hEmpName3 = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 220, 150, 25, hWnd, (HMENU)ID_NAME3, g_hInst, NULL);
 		//성별 라디오버튼 생성
-		hEmpMale = CreateWindow(TEXT("button"), TEXT("Male"), WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP, 150, 230, 70, 25, hWnd, (HMENU)ID_MALE, g_hInst, NULL);
-		hEmpFemale = CreateWindow(TEXT("button"), TEXT("Female"), WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 225, 230, 70, 25, hWnd, (HMENU)ID_FEMALE, g_hInst, NULL);
+		hEmpMale = CreateWindow(TEXT("button"), TEXT("Male"), WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP, 150, 255, 70, 25, hWnd, (HMENU)ID_MALE, g_hInst, NULL);
+		hEmpFemale = CreateWindow(TEXT("button"), TEXT("Female"), WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 225, 255, 70, 25, hWnd, (HMENU)ID_FEMALE, g_hInst, NULL);
 		CheckRadioButton(hWnd, ID_MALE, ID_FEMALE, ID_MALE);
 		//생년월일 날짜컨트롤 생성
-		hEmpBirth = CreateWindow(DATETIMEPICK_CLASS, NULL, WS_BORDER | WS_CHILD | WS_VISIBLE | DTS_SHORTDATEFORMAT, 150, 270, 153, 25, hWnd, (HMENU)ID_BIRTH, g_hInst, NULL);
+		hEmpBirth = CreateWindow(DATETIMEPICK_CLASS, NULL, WS_BORDER | WS_CHILD | WS_VISIBLE | DTS_SHORTDATEFORMAT, 150, 290, 153, 25, hWnd, (HMENU)ID_BIRTH, g_hInst, NULL);
 		//주소 에디트컨트롤 생성
-		hEmpAddress = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 310, 150, 25, hWnd, (HMENU)ID_ADDRESS, g_hInst, NULL);
+		hEmpAddress = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 325, 150, 25, hWnd, (HMENU)ID_ADDRESS, g_hInst, NULL);
 		//이메일 에디트컨트롤 생성
-		hEmpEmail = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 350, 150, 25, hWnd, (HMENU)ID_EMAIL, g_hInst, NULL);
+		hEmpEmail = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 360, 150, 25, hWnd, (HMENU)ID_EMAIL, g_hInst, NULL);
 		//연락처 에디트컨트롤 생성
-		hEmpPhone = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 390, 150, 25, hWnd, (HMENU)ID_PHONE, g_hInst, NULL);
+		hEmpPhone1 = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 395, 150, 25, hWnd, (HMENU)ID_PHONE1, g_hInst, NULL);
+		hEmpPhone2 = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 430, 150, 25, hWnd, (HMENU)ID_PHONE2, g_hInst, NULL);
 		//신장 에디트컨트롤 생성
-		hEmpHeight = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 430, 150, 25, hWnd, (HMENU)ID_HEIGHT, g_hInst, NULL);
+		hEmpHeight = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 465, 150, 25, hWnd, (HMENU)ID_HEIGHT, g_hInst, NULL);
 		//체중 에디트컨트롤 생성
-		hEmpWeight = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 470, 150, 25, hWnd, (HMENU)ID_WEIGHT, g_hInst, NULL);
+		hEmpWeight = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 500, 150, 25, hWnd, (HMENU)ID_WEIGHT, g_hInst, NULL);
 		//결혼관계 라디오버튼 생성
-		hEmpSingle = CreateWindow(TEXT("button"), TEXT("Single"), WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP, 150, 510, 70, 30, hWnd, (HMENU)ID_SINGLE, g_hInst, NULL);
-		hEmpMarriage = CreateWindow(TEXT("button"), TEXT("Marriage"), WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 220, 510, 80, 30, hWnd, (HMENU)ID_MARRIAGE, g_hInst, NULL);
+		hEmpSingle = CreateWindow(TEXT("button"), TEXT("Single"), WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP, 150, 535, 70, 30, hWnd, (HMENU)ID_SINGLE, g_hInst, NULL);
+		hEmpMarriage = CreateWindow(TEXT("button"), TEXT("Marriage"), WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 220, 535, 80, 30, hWnd, (HMENU)ID_MARRIAGE, g_hInst, NULL);
 		CheckRadioButton(hWnd, ID_SINGLE, ID_MARRIAGE, ID_SINGLE);
 		//종교 콤보박스 생성
-		hEmpRelligion = CreateWindow(TEXT("combobox"), NULL, WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, 150, 550, 153, 200, hWnd, (HMENU)ID_RELLIGION, g_hInst, NULL);
+		hEmpRelligion = CreateWindow(TEXT("combobox"), NULL, WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, 150, 580, 153, 200, hWnd, (HMENU)ID_RELLIGION, g_hInst, NULL);
 		for (i = 0; i < totR; i++) {
 			SendMessage(hEmpRelligion, CB_ADDSTRING, 0, (LPARAM)religion[i].name);
 		}
 		//시력 에디트컨트롤 생성
-		hEmpLefteye = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 590, 150, 25, hWnd, (HMENU)ID_LEFTEYE, g_hInst, NULL);
-		hEmpRighteye = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 630, 150, 25, hWnd, (HMENU)ID_RIGHTEYE, g_hInst, NULL);
+		hEmpLefteye = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 615, 150, 25, hWnd, (HMENU)ID_LEFTEYE, g_hInst, NULL);
+		hEmpRighteye = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 650, 150, 25, hWnd, (HMENU)ID_RIGHTEYE, g_hInst, NULL);
 		//퇴직처리 버튼생성
-		CreateWindow(TEXT("button"), TEXT("퇴직처리"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 100, 670, 130, 30, hWnd, (HMENU)ID_RETIRE, g_hInst, NULL);
+		CreateWindow(TEXT("button"), TEXT("퇴직처리"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 100, 685, 130, 30, hWnd, (HMENU)ID_RETIRE, g_hInst, NULL);
 
 		//삽입버튼생성
-		CreateWindow(TEXT("button"), TEXT("삽입"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 50, 710, 70, 25, hWnd, (HMENU)IDC_INSERT, g_hInst, NULL);
+		CreateWindow(TEXT("button"), TEXT("삽입"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 50, 720, 70, 25, hWnd, (HMENU)IDC_INSERT, g_hInst, NULL);
 		//수정버튼생성
-		CreateWindow(TEXT("button"), TEXT("수정"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 130, 710, 70, 25, hWnd, (HMENU)IDC_MODIFY, g_hInst, NULL);
+		CreateWindow(TEXT("button"), TEXT("수정"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 130, 720, 70, 25, hWnd, (HMENU)IDC_MODIFY, g_hInst, NULL);
 		//삭제버튼생성
-		CreateWindow(TEXT("button"), TEXT("삭제"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 210, 710, 70, 25, hWnd, (HMENU)IDC_DELETE, g_hInst, NULL);
+		CreateWindow(TEXT("button"), TEXT("삭제"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 210, 720, 70, 25, hWnd, (HMENU)IDC_DELETE, g_hInst, NULL);
 
 		return 0;
+	case WM_NOTIFY:
+		LPNMHDR hdr;
+		LPNMLISTVIEW nlv;
+		hdr = (LPNMHDR)lParam;
+		nlv = (LPNMLISTVIEW)lParam;
+
+		//부서리스트뷰에서 선택된 항목 edit로 뿌리기
+		switch (hdr->code) {
+		case LVN_ITEMCHANGED:
+			if (nlv->uChanged == LVIF_STATE && nlv->uNewState == (LVIS_SELECTED | LVIS_FOCUSED)) {
+				SetDlgItemText(hWnd, ID_EMPNO, workEmp[nlv->iItem].empNo);
+				SetDlgItemText(hWnd, ID_BUSEO, workEmp[nlv->iItem].empBuseo);
+				SetDlgItemText(hWnd, ID_POSCODE, workEmp[nlv->iItem].empPosCode);
+				SetDlgItemText(hWnd, ID_INDATE, workEmp[nlv->iItem].empStartYear);
+				SetDlgItemText(hWnd, ID_NAME1, workEmp[nlv->iItem].pInfo.pName[0]);
+				SetDlgItemText(hWnd, ID_NAME2, workEmp[nlv->iItem].pInfo.pName[1]);
+				SetDlgItemText(hWnd, ID_NAME3, workEmp[nlv->iItem].pInfo.pName[2]);
+			}
+			return TRUE;
+		}
+		break;
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
-		TextOut(hdc, 50, 35, TEXT("사원번호"), lstrlen(TEXT("사원번호")));
-		TextOut(hdc, 50, 75, TEXT("부서"), lstrlen(TEXT("부서")));
-		TextOut(hdc, 50, 115, TEXT("직책"), lstrlen(TEXT("직책")));
-		TextOut(hdc, 50, 155, TEXT("입사일"), lstrlen(TEXT("입사일")));
-		TextOut(hdc, 50, 195, TEXT("이름"), lstrlen(TEXT("이름")));
-		TextOut(hdc, 50, 235, TEXT("성별"), lstrlen(TEXT("성별")));
-		TextOut(hdc, 50, 275, TEXT("생년월일"), lstrlen(TEXT("생년월일")));
-		TextOut(hdc, 50, 315, TEXT("주소"), lstrlen(TEXT("주소")));
-		TextOut(hdc, 50, 355, TEXT("전자우편"), lstrlen(TEXT("전자우편")));
-		TextOut(hdc, 50, 395, TEXT("연락처"), lstrlen(TEXT("연락처")));
-		TextOut(hdc, 50, 435, TEXT("신장"), lstrlen(TEXT("신장")));
-		TextOut(hdc, 50, 475, TEXT("체중"), lstrlen(TEXT("체중")));
-		TextOut(hdc, 50, 515, TEXT("결혼관계"), lstrlen(TEXT("결혼관계")));
-		TextOut(hdc, 50, 555, TEXT("종교"), lstrlen(TEXT("종교")));
-		TextOut(hdc, 50, 595, TEXT("시력(좌)"), lstrlen(TEXT("시력(좌)")));
-		TextOut(hdc, 50, 635, TEXT("시력(우)"), lstrlen(TEXT("시력(우)")));
+		hFont = CreateFont(18, 0, 0, 0, 0, 0, 0, 0, HANGEUL_CHARSET, 0, 0, 0, VARIABLE_PITCH | FF_ROMAN, TEXT("맑은 고딕"));
+		OldFont = (HFONT)SelectObject(hdc, hFont);
+		SetBkMode(hdc,TRANSPARENT);
+		TextOut(hdc, 65, 13, TEXT("사원번호"), lstrlen(TEXT("사원번호")));
+		TextOut(hdc, 65, 48, TEXT("부서"), lstrlen(TEXT("부서")));
+		TextOut(hdc, 65, 83, TEXT("직책"), lstrlen(TEXT("직책")));
+		TextOut(hdc, 65, 118, TEXT("입사일"), lstrlen(TEXT("입사일")));
+		TextOut(hdc, 65, 153, TEXT("이름"), lstrlen(TEXT("이름")));
+		TextOut(hdc, 65, 188, TEXT("영문이름"), lstrlen(TEXT("영문이름")));
+		TextOut(hdc, 65, 223, TEXT("한문이름"), lstrlen(TEXT("한문이름")));
+		TextOut(hdc, 65, 258, TEXT("성별"), lstrlen(TEXT("성별")));
+		TextOut(hdc, 65, 293, TEXT("생년월일"), lstrlen(TEXT("생년월일")));
+		TextOut(hdc, 65, 328, TEXT("주소"), lstrlen(TEXT("주소")));
+		TextOut(hdc, 65, 363, TEXT("전자우편"), lstrlen(TEXT("전자우편")));
+		TextOut(hdc, 65, 398, TEXT("연락처1"), lstrlen(TEXT("연락처1")));
+		TextOut(hdc, 65, 433, TEXT("연락처2"), lstrlen(TEXT("연락처2")));
+		TextOut(hdc, 65, 470, TEXT("신장"), lstrlen(TEXT("신장")));
+		TextOut(hdc, 65, 505, TEXT("체중"), lstrlen(TEXT("체중")));
+		TextOut(hdc, 65, 545, TEXT("결혼관계"), lstrlen(TEXT("결혼관계")));
+		TextOut(hdc, 65, 585, TEXT("종교"), lstrlen(TEXT("종교")));
+		TextOut(hdc, 65, 620, TEXT("시력(좌)"), lstrlen(TEXT("시력(좌)")));
+		TextOut(hdc, 65, 655, TEXT("시력(우)"), lstrlen(TEXT("시력(우)")));
+		DeleteObject(hFont);
 		EndPaint(hWnd, &ps);
 		return 0;
 	}
