@@ -1,18 +1,23 @@
 #include "Emp.h"
+#include "Common.h"
 
 extern HINSTANCE g_hInst;
 extern int totB;			//부서갯수
 extern int totP;			//직위갯수
 extern int totR;			//종교갯수
+extern int totWEmp;			//사원수
+extern int totREmp;			//퇴직사원수
 extern BASE* buseo;			//부서
 extern BASE* position;		//직위
 extern BASE* religion;		//종교
+extern EMP* workEmp;		//사원
+extern EMP* retireEmp;		//퇴직사원
 
 HWND hEMPList, hEmpNo, hEmpBuseo, hEmpPoscode, hEmpIndate, hEmpName, hEmpMale, hEmpFemale, hEmpBirth, hEmpAddress,
 hEmpEmail, hEmpPhone, hEmpHeight, hEmpWeight, hEmpLefteye, hEmpRighteye, hEmpSingle, hEmpMarriage, hEmpRelligion;	//컨트롤 핸들
 enum {
 	ID_EMPLIST = 1, ID_EMPNO, ID_BUSEO, ID_POSCODE, ID_INDATE, ID_NAME, ID_MALE, ID_FEMALE, ID_BIRTH, ID_ADDRESS, ID_EMAIL,
-	ID_PHONE, ID_HEIGHT, ID_WEIGHT, ID_LEFTEYE, ID_RIGHTEYE, ID_SINGLE, ID_MARRIAGE, ID_RELLIGION, IDB_RETIRE
+	ID_PHONE, ID_HEIGHT, ID_WEIGHT, ID_LEFTEYE, ID_RIGHTEYE, ID_SINGLE, ID_MARRIAGE, ID_RELLIGION, ID_RETIRE, IDC_INSERT, IDC_MODIFY, IDC_DELETE
 };
 
 //사원관리 프로시져
@@ -21,6 +26,7 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 	HDC hdc;
 	PAINTSTRUCT ps;
 	INITCOMMONCONTROLSEX icex;
+	int i,ind;
 
 	switch (iMessage) {
 	case WM_CREATE:
@@ -142,14 +148,20 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 		COL.iSubItem = 12;
 		ListView_InsertColumn(hEMPList, 12, &COL);
 
-		//리스트뷰에 부서 채우기
+		//리스트뷰에 사원 채우기
 
 		//사원번호 에디트컨트롤 생성
-		hEmpNo = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 33, 150, 25, hWnd, (HMENU)ID_EMPNO, g_hInst, NULL);
+		hEmpNo = CreateWindow(TEXT("static"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER , 150, 33, 150, 25, hWnd, (HMENU)ID_EMPNO, g_hInst, NULL);
 		//부서 콤보박스 생성
 		hEmpBuseo = CreateWindow(TEXT("combobox"), NULL, WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, 150, 70, 153, 200, hWnd, (HMENU)ID_BUSEO, g_hInst, NULL);
+		for (i = 0; i < totB; i++) {
+			SendMessage(hEmpBuseo, CB_ADDSTRING, 0, (LPARAM)buseo[i].name);
+		}
 		//직책 콤보박스 생성
 		hEmpPoscode = CreateWindow(TEXT("combobox"), NULL, WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, 150, 110, 153, 200, hWnd, (HMENU)ID_POSCODE, g_hInst, NULL);
+		for (i = 0; i < totP; i++) {
+			SendMessage(hEmpPoscode, CB_ADDSTRING, 0, (LPARAM)position[i].name);
+		}
 		//입사일 날짜컨트롤 생성
 		hEmpIndate = CreateWindow(DATETIMEPICK_CLASS, NULL, WS_BORDER | WS_CHILD | WS_VISIBLE | DTS_SHORTDATEFORMAT, 150, 150, 153, 25, hWnd, (HMENU)ID_INDATE, g_hInst, NULL);
 		//이름 에디트컨트롤 생성
@@ -172,15 +184,25 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 		hEmpWeight = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 470, 150, 25, hWnd, (HMENU)ID_WEIGHT, g_hInst, NULL);
 		//결혼관계 라디오버튼 생성
 		hEmpSingle = CreateWindow(TEXT("button"), TEXT("Single"), WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP, 150, 510, 70, 30, hWnd, (HMENU)ID_SINGLE, g_hInst, NULL);
-		hEmpMarriage = CreateWindow(TEXT("button"), TEXT("Marriage"), WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 225, 510, 70, 30, hWnd, (HMENU)ID_MARRIAGE, g_hInst, NULL);
+		hEmpMarriage = CreateWindow(TEXT("button"), TEXT("Marriage"), WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 220, 510, 80, 30, hWnd, (HMENU)ID_MARRIAGE, g_hInst, NULL);
 		CheckRadioButton(hWnd, ID_SINGLE, ID_MARRIAGE, ID_SINGLE);
 		//종교 콤보박스 생성
 		hEmpRelligion = CreateWindow(TEXT("combobox"), NULL, WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, 150, 550, 153, 200, hWnd, (HMENU)ID_RELLIGION, g_hInst, NULL);
+		for (i = 0; i < totR; i++) {
+			SendMessage(hEmpRelligion, CB_ADDSTRING, 0, (LPARAM)religion[i].name);
+		}
 		//시력 에디트컨트롤 생성
 		hEmpLefteye = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 590, 150, 25, hWnd, (HMENU)ID_LEFTEYE, g_hInst, NULL);
 		hEmpRighteye = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 630, 150, 25, hWnd, (HMENU)ID_RIGHTEYE, g_hInst, NULL);
 		//퇴직처리 버튼생성
-		CreateWindow(TEXT("button"), TEXT("퇴직처리"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 100, 670, 130, 30, hWnd, (HMENU)IDB_RETIRE, g_hInst, NULL);
+		CreateWindow(TEXT("button"), TEXT("퇴직처리"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 100, 670, 130, 30, hWnd, (HMENU)ID_RETIRE, g_hInst, NULL);
+
+		//삽입버튼생성
+		CreateWindow(TEXT("button"), TEXT("삽입"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 50, 710, 70, 25, hWnd, (HMENU)IDC_INSERT, g_hInst, NULL);
+		//수정버튼생성
+		CreateWindow(TEXT("button"), TEXT("수정"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 130, 710, 70, 25, hWnd, (HMENU)IDC_MODIFY, g_hInst, NULL);
+		//삭제버튼생성
+		CreateWindow(TEXT("button"), TEXT("삭제"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 210, 710, 70, 25, hWnd, (HMENU)IDC_DELETE, g_hInst, NULL);
 
 		return 0;
 	case WM_PAINT:

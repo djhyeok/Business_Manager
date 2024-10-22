@@ -128,12 +128,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Base.cpp" />
     <ClCompile Include="Business_Manager.cpp" />
-    <ClCompile Include="Common.cpp" />
-    <ClCompile Include="Common.h" />
+    <ClCompile Include="Frame.cpp" />
+    <ClCompile Include="Frame.h" />
     <ClCompile Include="Emp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Base.h" />
+    <ClInclude Include="Common.h" />
     <ClInclude Include="Emp.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>

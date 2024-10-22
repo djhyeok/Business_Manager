@@ -1,5 +1,7 @@
-#include "Common.h"
+#include "Frame.h"
 #include "Emp.h"
+#include "Base.h"
+#include "Common.h"
 
 HINSTANCE g_hInst;
 LPCTSTR lpszClass = TEXT("BusinessManager");
@@ -8,9 +10,13 @@ HWND g_hMDIClient;	//클라이언트 윈도우 핸들
 int totB = 0;		//부서갯수
 int totP = 0;		//직위갯수
 int totR = 0;		//종교갯수
+int totWEmp = 0;	//총사원수
+int totREmp = 0;	//퇴직한사원수
 BASE* buseo;		//부서
 BASE* position;		//직위
 BASE* religion;		//종교
+EMP* workEmp;		//재직중인 사원
+EMP* retireEmp;		//퇴직한 사원
 
 //인사관리 프로그램
 
