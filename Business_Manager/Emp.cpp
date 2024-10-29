@@ -1,6 +1,11 @@
 #include "Emp.h"
 #include "Common.h"
 
+/*
+에디트에 입력한 값을 리스트뷰에 뿌리고 에디트 컨트롤 초기화
+삽입,수정,삭제 후 리스트뷰 다 비우고 다시 데이터수만큼 리스트뷰에 뿌리기
+*/
+
 extern HINSTANCE g_hInst;
 extern int totB;			//부서갯수
 extern int totP;			//직위갯수
@@ -28,6 +33,8 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 	PAINTSTRUCT ps;
 	INITCOMMONCONTROLSEX icex;
 	int i, ind;
+	EMP tempEmp;
+	SYSTEMTIME st;
 
 	switch (iMessage) {
 	case WM_CREATE:
@@ -175,12 +182,12 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 		//사원번호 에디트컨트롤 생성
 		hEmpNo = CreateWindow(TEXT("static"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 150, 10, 150, 25, hWnd, (HMENU)ID_EMPNO, g_hInst, NULL);
 		//부서 콤보박스 생성
-		hEmpBuseo = CreateWindow(TEXT("combobox"), NULL, WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, 150, 45, 153, 200, hWnd, (HMENU)ID_BUSEO, g_hInst, NULL);
+		hEmpBuseo = CreateWindow(TEXT("combobox"), NULL, WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, 150, 45, 153, 200, hWnd, (HMENU)ID_BUSEO, g_hInst, NULL);
 		for (i = 0; i < totB; i++) {
 			SendMessage(hEmpBuseo, CB_ADDSTRING, 0, (LPARAM)buseo[i].name);
 		}
 		//직책 콤보박스 생성
-		hEmpPoscode = CreateWindow(TEXT("combobox"), NULL, WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, 150, 80, 153, 200, hWnd, (HMENU)ID_POSCODE, g_hInst, NULL);
+		hEmpPoscode = CreateWindow(TEXT("combobox"), NULL, WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, 150, 80, 153, 200, hWnd, (HMENU)ID_POSCODE, g_hInst, NULL);
 		for (i = 0; i < totP; i++) {
 			SendMessage(hEmpPoscode, CB_ADDSTRING, 0, (LPARAM)position[i].name);
 		}
@@ -212,7 +219,7 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 		hEmpMarriage = CreateWindow(TEXT("button"), TEXT("Marriage"), WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON, 220, 535, 80, 30, hWnd, (HMENU)ID_MARRIAGE, g_hInst, NULL);
 		CheckRadioButton(hWnd, ID_SINGLE, ID_MARRIAGE, ID_SINGLE);
 		//종교 콤보박스 생성
-		hEmpRelligion = CreateWindow(TEXT("combobox"), NULL, WS_CHILD | WS_VISIBLE | CBS_DROPDOWN, 150, 580, 153, 200, hWnd, (HMENU)ID_RELLIGION, g_hInst, NULL);
+		hEmpRelligion = CreateWindow(TEXT("combobox"), NULL, WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, 150, 580, 153, 200, hWnd, (HMENU)ID_RELLIGION, g_hInst, NULL);
 		for (i = 0; i < totR; i++) {
 			SendMessage(hEmpRelligion, CB_ADDSTRING, 0, (LPARAM)religion[i].name);
 		}
@@ -230,23 +237,100 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 		CreateWindow(TEXT("button"), TEXT("삭제"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 210, 720, 70, 25, hWnd, (HMENU)IDC_DELETE, g_hInst, NULL);
 
 		return 0;
+	case WM_COMMAND:
+	
+
+		switch (LOWORD(wParam)) {
+		case IDC_INSERT:	//삽입 버튼
+			GetWindowText(hEmpBuseo, tempEmp.empBuseo, lstrlen(tempEmp.empBuseo));				//부서
+			GetWindowText(hEmpPoscode, tempEmp.empPosCode, lstrlen(tempEmp.empPosCode));		//직책
+			if (SendMessage(hEmpIndate, DTM_GETSYSTEMTIME, 0, (LPARAM)&st) == GDT_VALID) {
+				tempEmp.empStartYear = st;														//입사일
+			}
+			else {
+				MessageBox(hWnd, TEXT("입사일이 선택되지 않았습니다"), TEXT("입사일 선택 오류"), MB_OK);
+				break;
+			}
+			GetWindowText(hEmpName1, tempEmp.pInfo.pName[0], lstrlen(tempEmp.pInfo.pName[0]));	//이름
+			GetWindowText(hEmpName2, tempEmp.pInfo.pName[1], lstrlen(tempEmp.pInfo.pName[1]));	//영문이름
+			GetWindowText(hEmpName3, tempEmp.pInfo.pName[2], lstrlen(tempEmp.pInfo.pName[2]));	//한자이름
+			if (SendMessage(hWnd, BST_CHECKED, ID_MALE, lParam)) {
+				tempEmp.pInfo.pSex = TRUE;														//남성
+			}
+			else {
+				tempEmp.pInfo.pSex = FALSE;														//여성
+			}
+			if (SendMessage(hEmpBirth, DTM_GETSYSTEMTIME, 0, (LPARAM)&st) == GDT_VALID) {
+				tempEmp.pInfo.pBirth = st;														//생일
+			}
+			else {
+				MessageBox(hWnd, TEXT("생일이 선택되지 않았습니다"), TEXT("생일 선택 오류"), MB_OK);
+				break;
+			}
+			GetWindowText(hEmpAddress, tempEmp.pInfo.pAddress, lstrlen(tempEmp.pInfo.pAddress));	//주소
+			GetWindowText(hEmpEmail, tempEmp.pInfo.pEmail, lstrlen(tempEmp.pInfo.pEmail));		//전자우편
+			GetWindowText(hEmpPhone1, tempEmp.pInfo.pPhone[0], lstrlen(tempEmp.pInfo.pPhone[0]));//연락처1
+			GetWindowText(hEmpPhone2, tempEmp.pInfo.pPhone[1], lstrlen(tempEmp.pInfo.pPhone[1]));//연락처2
+			GetWindowText(hEmpHeight, tempEmp.pInfo.pPhysical[0], lstrlen(tempEmp.pInfo.pPhysical[0]));//신장
+			GetWindowText(hEmpWeight, tempEmp.pInfo.pPhysical[1], lstrlen(tempEmp.pInfo.pPhysical[1]));//체중
+			if (SendMessage(hWnd, BST_CHECKED, ID_MARRIAGE, lParam)) {
+				tempEmp.pInfo.pSex = TRUE;														//기혼
+			}
+			else {
+				tempEmp.pInfo.pSex = FALSE;														//미혼
+			}
+			GetWindowText(hEmpRelligion, tempEmp.pInfo.pReligion, lstrlen(tempEmp.pInfo.pReligion));//종교
+			GetWindowText(hEmpLefteye, tempEmp.pInfo.pPhysical[2], lstrlen(tempEmp.pInfo.pPhysical[2]));//시력(좌)
+			GetWindowText(hEmpRighteye, tempEmp.pInfo.pPhysical[3], lstrlen(tempEmp.pInfo.pPhysical[3]));//시력(우)
+
+			if (lstrlen(tempEmp.empBuseo) && lstrlen(tempEmp.empPosCode) && lstrlen(tempEmp.pInfo.pName[0])
+				&& lstrlen(tempEmp.pInfo.pName[1]) && lstrlen(tempEmp.pInfo.pName[2]) && lstrlen(tempEmp.pInfo.pAddress)
+				&& lstrlen(tempEmp.pInfo.pEmail) && lstrlen(tempEmp.pInfo.pPhone[0]) && lstrlen(tempEmp.pInfo.pPhone[1])
+				&& lstrlen(tempEmp.pInfo.pPhysical[0]) && lstrlen(tempEmp.pInfo.pPhysical[1]) && lstrlen(tempEmp.pInfo.pReligion)
+				&& lstrlen(tempEmp.pInfo.pPhysical[2]) && lstrlen(tempEmp.pInfo.pPhysical[3])) {
+				MessageBox(hWnd, TEXT("길이가 0인 값은 추가할 수 없습니다."), TEXT("입력값 오류"), MB_OK);
+			}
+			break;
+		case IDC_MODIFY:	//수정 버튼
+
+			break;
+		case IDC_DELETE:	//삭제 버튼
+
+			break;
+		case ID_RETIRE:		//퇴직처리 버튼
+
+			break;
+		}
+		return 0;
 	case WM_NOTIFY:
 		LPNMHDR hdr;
 		LPNMLISTVIEW nlv;
 		hdr = (LPNMHDR)lParam;
 		nlv = (LPNMLISTVIEW)lParam;
+		TCHAR str[255],tstr[255];
 
-		//부서리스트뷰에서 선택된 항목 edit로 뿌리기
+		//부서리스트뷰에서 선택된 항목 컨트롤들로 뿌리기
 		switch (hdr->code) {
 		case LVN_ITEMCHANGED:
 			if (nlv->uChanged == LVIF_STATE && nlv->uNewState == (LVIS_SELECTED | LVIS_FOCUSED)) {
-				SetDlgItemText(hWnd, ID_EMPNO, workEmp[nlv->iItem].empNo);
-				SetDlgItemText(hWnd, ID_BUSEO, workEmp[nlv->iItem].empBuseo);
-				SetDlgItemText(hWnd, ID_POSCODE, workEmp[nlv->iItem].empPosCode);
-				SetDlgItemText(hWnd, ID_INDATE, workEmp[nlv->iItem].empStartYear);
-				SetDlgItemText(hWnd, ID_NAME1, workEmp[nlv->iItem].pInfo.pName[0]);
-				SetDlgItemText(hWnd, ID_NAME2, workEmp[nlv->iItem].pInfo.pName[1]);
-				SetDlgItemText(hWnd, ID_NAME3, workEmp[nlv->iItem].pInfo.pName[2]);
+
+				SetWindowText(hEmpNo, workEmp[nlv->iItem].empNo);
+				SetWindowText(hEmpBuseo, workEmp[nlv->iItem].empBuseo);
+				SetWindowText(hEmpPoscode, workEmp[nlv->iItem].empPosCode);
+				st = workEmp[nlv->iItem].empStartYear;
+				SendMessage(hEmpIndate, DTM_SETSYSTEMTIME, GDT_VALID, (LPARAM)&st);
+				SetWindowText(hEmpName1, workEmp[nlv->iItem].pInfo.pName[0]);
+				SetWindowText(hEmpName2, workEmp[nlv->iItem].pInfo.pName[1]);
+				SetWindowText(hEmpName3, workEmp[nlv->iItem].pInfo.pName[2]);
+
+				if (workEmp[nlv->iItem].pInfo.pSex == TRUE) {
+					SendMessage(hWnd, BST_CHECKED, ID_MALE, lParam);
+				}
+				else {
+					SendMessage(hWnd, BST_CHECKED, ID_FEMALE, lParam);
+				}
+
+
 			}
 			return TRUE;
 		}
@@ -255,7 +339,7 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 		hdc = BeginPaint(hWnd, &ps);
 		hFont = CreateFont(18, 0, 0, 0, 0, 0, 0, 0, HANGEUL_CHARSET, 0, 0, 0, VARIABLE_PITCH | FF_ROMAN, TEXT("맑은 고딕"));
 		OldFont = (HFONT)SelectObject(hdc, hFont);
-		SetBkMode(hdc,TRANSPARENT);
+		SetBkMode(hdc, TRANSPARENT);
 		TextOut(hdc, 65, 13, TEXT("사원번호"), lstrlen(TEXT("사원번호")));
 		TextOut(hdc, 65, 48, TEXT("부서"), lstrlen(TEXT("부서")));
 		TextOut(hdc, 65, 83, TEXT("직책"), lstrlen(TEXT("직책")));

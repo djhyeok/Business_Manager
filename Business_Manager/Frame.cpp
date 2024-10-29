@@ -26,10 +26,12 @@ LRESULT CALLBACK MDIWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPar
 		ccs.idFirstChild = IDM_WINDOWCHILD;
 		g_hMDIClient = CreateWindow(TEXT("MDIClient"), NULL, WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN, 0, 0, 0, 0, hWnd, (HMENU)NULL, g_hInst, (LPSTR)&ccs);
 		ShowWindow(g_hMDIClient, SW_SHOW);
+
 		//초기에 부서,직위,종교 1개 사이즈로 할당
 		buseo = (BASE*)malloc(sizeof(BASE));
 		position = (BASE*)malloc(sizeof(BASE));
 		religion = (BASE*)malloc(sizeof(BASE));
+
 		//초기에 사원,퇴직사원 1개 사이즈로 할당
 		workEmp = (EMP*)malloc(sizeof(EMP));
 		retireEmp = (EMP*)malloc(sizeof(EMP));
