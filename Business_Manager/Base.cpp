@@ -114,6 +114,10 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 				MessageBox(hWnd, TEXT("값 중복"), NULL, MB_OK);
 			}
 
+			//삽입후 코드,이름 컨트롤 빈칸으로 초기화
+			SetWindowText(hCode, TEXT(""));
+			SetWindowText(hName, TEXT(""));
+
 			break;
 		case IDC_MODIFY:	//수정버튼
 
@@ -161,6 +165,11 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 					}
 				}
 			}
+
+			//수정후 코드,이름 컨트롤 빈칸으로 초기화
+			SetWindowText(hCode, TEXT(""));
+			SetWindowText(hName, TEXT(""));
+
 			break;
 		case IDC_DEL:
 			ind = ListView_GetNextItem(hBuseoList, -1, LVNI_ALL | LVNI_SELECTED);
@@ -179,6 +188,9 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 				totB--;
 				buseo = (BASE*)realloc(buseo, totB * sizeof(BASE));
 			}
+			//삭제후 코드,이름 컨트롤 빈칸으로 초기화
+			SetWindowText(hCode, TEXT(""));
+			SetWindowText(hName, TEXT(""));
 			break;
 		}
 		return 0;
@@ -305,6 +317,10 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 				MessageBox(hWnd, TEXT("값 중복"), NULL, MB_OK);
 			}
 
+			//삽입후 코드,이름 컨트롤 빈칸으로 초기화
+			SetWindowText(hCode, TEXT(""));
+			SetWindowText(hName, TEXT(""));
+
 			break;
 		case IDC_MODIFY:	//수정버튼
 
@@ -355,6 +371,11 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 					}
 				}
 			}
+
+			//수정후 코드,이름 컨트롤 빈칸으로 초기화
+			SetWindowText(hCode, TEXT(""));
+			SetWindowText(hName, TEXT(""));
+
 			break;
 		case IDC_DEL:
 			ind = ListView_GetNextItem(hReligionList, -1, LVNI_ALL | LVNI_SELECTED);
@@ -371,7 +392,11 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 				lstrcpy(religion[totR - 1].name, TEXT(""));
 				totR--;
 				religion = (BASE*)realloc(religion, totR * sizeof(BASE));
+
 			}
+			//삭제후 코드,이름 컨트롤 빈칸으로 초기화
+			SetWindowText(hCode, TEXT(""));
+			SetWindowText(hName, TEXT(""));
 			break;
 		}
 		return 0;
@@ -497,6 +522,10 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 
 			}
 
+			//삽입후 코드,이름 컨트롤 빈칸으로 초기화
+			SetWindowText(hCode, TEXT(""));
+			SetWindowText(hName, TEXT(""));
+
 			break;
 		case IDC_MODIFY:	//수정버튼
 
@@ -546,6 +575,11 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 					}
 				}
 			}
+
+			//수정후 코드,이름 컨트롤 빈칸으로 초기화
+			SetWindowText(hCode, TEXT(""));
+			SetWindowText(hName, TEXT(""));
+
 			break;
 		case IDC_DEL:
 			ind = ListView_GetNextItem(hPositionList, -1, LVNI_ALL | LVNI_SELECTED);
@@ -563,6 +597,11 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 				totP--;
 				position = (BASE*)realloc(position, totP * sizeof(BASE));
 			}
+			
+			//삭제후 코드,이름 컨트롤 빈칸으로 초기화
+			SetWindowText(hCode, TEXT(""));
+			SetWindowText(hName, TEXT(""));
+
 			break;
 		}
 		return 0;
