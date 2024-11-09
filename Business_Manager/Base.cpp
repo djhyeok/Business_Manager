@@ -3,10 +3,14 @@
 
 extern HINSTANCE g_hInst;
 HWND hBuseoList;			//부서리스트뷰 핸들
+HWND hBCode;				//부서코드에디트윈도우 핸들
+HWND hBName;				//부서이름에디트윈도우 핸들
 HWND hReligionList;			//종교리스트뷰 핸들
+HWND hRCode;				//종교코드에디트윈도우 핸들
+HWND hRName;				//종교이름에디트윈도우 핸들
 HWND hPositionList;			//직위리스트뷰 핸들
-HWND hCode;					//코드에디트윈도우 핸들
-HWND hName;					//이름에디트윈도우 핸들
+HWND hPCode;				//직위코드에디트윈도우 핸들
+HWND hPName;				//직위이름에디트윈도우 핸들
 extern int totB;			//부서갯수
 extern int totP;			//직위갯수
 extern int totR;			//종교갯수
@@ -23,7 +27,7 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 	PAINTSTRUCT ps;
 	int i, ind;
 	static BOOL isDup = FALSE;
-	TCHAR tCode[3], tName[21];		//임시 문자열
+	BASE tempBase;		//임시 구조체
 
 	switch (iMessage) {
 	case WM_CREATE:
@@ -54,9 +58,9 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 			ListView_SetItemText(hBuseoList, i, 1, (LPWSTR)buseo[i].name);
 		}
 		//부서코드 edit생성
-		hCode = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 370, 150, 70, 25, hWnd, (HMENU)ID_CODE, g_hInst, NULL);
+		hBCode = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 370, 150, 70, 25, hWnd, (HMENU)ID_CODE, g_hInst, NULL);
 		//부서명 edit생성
-		hName = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 520, 150, 70, 25, hWnd, (HMENU)ID_NAME, g_hInst, NULL);
+		hBName = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 520, 150, 70, 25, hWnd, (HMENU)ID_NAME, g_hInst, NULL);
 		//삽입버튼생성
 		CreateWindow(TEXT("button"), TEXT("삽입"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 300, 250, 70, 25, hWnd, (HMENU)IDC_INSERT, g_hInst, NULL);
 		//수정버튼생성
@@ -67,22 +71,20 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
 		case IDC_INSERT:	//삽입버튼
-			lstrcpy(tCode, TEXT(""));
-			lstrcpy(tName, TEXT(""));
 
 			//부서코드와 부서이름 edit컨트롤의 값을 tCode,tName에 임시 저장
-			GetWindowText(hCode, tCode, 3);
-			GetWindowText(hName, tName, 21);
+			GetWindowText(hBCode, tempBase.code, 3);
+			GetWindowText(hBName, tempBase.name, 255);
 
 			//길이가 0인경우 break
-			if (lstrlen(tCode) == 0 || lstrlen(tName) == 0) {
+			if (lstrlen(tempBase.code) == 0 || lstrlen(tempBase.name) == 0) {
 				MessageBox(hWnd, TEXT("길이가 0인 값으로는 삽입이 불가능합니다."), TEXT("삽입값 에러"), MB_OK);
 				break;
 			}
 
 			//중복값인지 체크
 			for (i = 0; i < totB; i++) {
-				if (lstrcmp(buseo[i].code, tCode) == 0 || lstrcmp(buseo[i].name, tName) == 0) {
+				if (lstrcmp(buseo[i].code, tempBase.code) == 0 || lstrcmp(buseo[i].name, tempBase.name) == 0) {
 					isDup = TRUE;
 					break;
 				}
@@ -90,14 +92,12 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 
 			//중복되지 않았다면 부서 추가해서 리스트뷰에 다시 보임
 			if (isDup == FALSE) {
-				buseo = (BASE*)realloc(buseo, (totB + 1) * sizeof(BASE));	//부서 포인터 재할당
 
-				GetWindowText(hCode, buseo[totB].code, 3);				//부서코드 edit의 값을 부서포인터 마지막.code 에 담음
-				GetWindowText(hName, buseo[totB].name, 21);				//부서코드 edit의 값을 부서포인터 마지막.name 에 담음
+				buseo = (BASE*)realloc(buseo, (totB + 1) * sizeof(BASE));	//부서 포인터 재할당
+				buseo[totB] = tempBase;
+				totB++;		//부서갯수++
 
 				ListView_DeleteAllItems(hBuseoList);		//리스트뷰 비움
-
-				totB++;		//부서갯수++
 
 				//리스트뷰에 다시 있는값 채우기
 				for (i = 0; i < totB; i++) {
@@ -115,8 +115,8 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 			}
 
 			//삽입후 코드,이름 컨트롤 빈칸으로 초기화
-			SetWindowText(hCode, TEXT(""));
-			SetWindowText(hName, TEXT(""));
+			SetWindowText(hBCode, TEXT(""));
+			SetWindowText(hBName, TEXT(""));
 
 			break;
 		case IDC_MODIFY:	//수정버튼
@@ -127,17 +127,17 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 			}
 			else {
 				//부서코드와 부서이름 edit컨트롤의 값을 tCode,tName에 임시 저장
-				GetWindowText(hCode, tCode, 3);
-				GetWindowText(hName, tName, 21);
+				GetWindowText(hBCode, tempBase.code, lstrlen(tempBase.code));
+				GetWindowText(hBName, tempBase.name, lstrlen(tempBase.name));
 
 				//길이가 0인경우 break
-				if (lstrlen(tCode) == 0 || lstrlen(tName) == 0) {
+				if (lstrlen(tempBase.code) == 0 || lstrlen(tempBase.name) == 0) {
 					MessageBox(hWnd, TEXT("길이가 0인 값으로는 수정이 불가능합니다."), TEXT("수정값 에러"), MB_OK);
 					break;
 				}
 				//중복값인지 체크
 				for (i = 0; i < totB; i++) {
-					if (i != ind && (lstrcmp(buseo[i].code, tCode) == 0 || lstrcmp(buseo[i].name, tName) == 0)) {
+					if (i != ind && (lstrcmp(buseo[i].code, tempBase.code) == 0 || lstrcmp(buseo[i].name, tempBase.name) == 0)) {
 						isDup = TRUE;
 						break;
 					}
@@ -148,12 +148,11 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 					isDup = FALSE;
 				}
 				else {
-					//ind번째 buseo의 값들을 바꿈
-					GetWindowText(hCode, buseo[totB].code, 3);				//부서코드 edit의 값을 부서포인터 마지막.code 에 담음
-					GetWindowText(hName, buseo[totB].name, 21);				//부서코드 edit의 값을 부서포인터 마지막.name 에 담음
+					//ind번째 buseo의 값을 바꿈
+					buseo[ind] = tempBase;
 
 					//리스트뷰 비우고 다시채움
-					ListView_DeleteAllItems(hBuseoList);		//리스트뷰 비움
+					ListView_DeleteAllItems(hBuseoList);
 
 					for (i = 0; i < totB; i++) {
 						LI.mask = LVIF_TEXT;
@@ -167,8 +166,8 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 			}
 
 			//수정후 코드,이름 컨트롤 빈칸으로 초기화
-			SetWindowText(hCode, TEXT(""));
-			SetWindowText(hName, TEXT(""));
+			SetWindowText(hBCode, TEXT(""));
+			SetWindowText(hBName, TEXT(""));
 
 			break;
 		case IDC_DEL:
@@ -189,8 +188,8 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 				buseo = (BASE*)realloc(buseo, totB * sizeof(BASE));
 			}
 			//삭제후 코드,이름 컨트롤 빈칸으로 초기화
-			SetWindowText(hCode, TEXT(""));
-			SetWindowText(hName, TEXT(""));
+			SetWindowText(hBCode, TEXT(""));
+			SetWindowText(hBName, TEXT(""));
 			break;
 		}
 		return 0;
@@ -204,8 +203,8 @@ LRESULT CALLBACK InitBuseoMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARA
 		switch (hdr->code) {
 		case LVN_ITEMCHANGED:
 			if (nlv->uChanged == LVIF_STATE && nlv->uNewState == (LVIS_SELECTED | LVIS_FOCUSED)) {
-				SetWindowText(hCode, buseo[nlv->iItem].code);
-				SetWindowText(hName, buseo[nlv->iItem].name);
+				SetWindowText(hBCode, buseo[nlv->iItem].code);
+				SetWindowText(hBName, buseo[nlv->iItem].name);
 			}
 			return TRUE;
 		}
@@ -228,7 +227,7 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 	PAINTSTRUCT ps;
 	int i, ind;
 	static BOOL isDup = FALSE;
-	TCHAR tCode[3], tName[21];		//임시 문자열
+	BASE tempBase;		//임시 구조체
 
 	switch (iMessage) {
 	case WM_CREATE:
@@ -261,9 +260,9 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 		}
 
 		//종교코드 edit생성
-		hCode = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 370, 150, 70, 25, hWnd, (HMENU)ID_CODE, g_hInst, NULL);
+		hRCode = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 370, 150, 70, 25, hWnd, (HMENU)ID_CODE, g_hInst, NULL);
 		//종교명 edit생성
-		hName = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 520, 150, 70, 25, hWnd, (HMENU)ID_NAME, g_hInst, NULL);
+		hRName = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 520, 150, 70, 25, hWnd, (HMENU)ID_NAME, g_hInst, NULL);
 		//삽입버튼생성
 		CreateWindow(TEXT("button"), TEXT("삽입"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 300, 250, 70, 25, hWnd, (HMENU)IDC_INSERT, g_hInst, NULL);
 		//수정버튼생성
@@ -274,21 +273,20 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
 		case IDC_INSERT:	//삽입버튼
-			lstrcpy(tCode, TEXT(""));
-			lstrcpy(tName, TEXT(""));
+
 			//종교코드와 종교이름 edit컨트롤의 값을 tCode,tName에 임시 저장
-			GetWindowText(hCode, tCode, 3);
-			GetWindowText(hName, tName, 21);
+			GetWindowText(hRCode, tempBase.code, lstrlen(tempBase.code));
+			GetWindowText(hRName, tempBase.name, lstrlen(tempBase.name));
 
 			//길이가 0인경우 break
-			if (lstrlen(tCode) == 0 || lstrlen(tName) == 0) {
+			if (lstrlen(tempBase.code) == 0 || lstrlen(tempBase.name) == 0) {
 				MessageBox(hWnd, TEXT("길이가 0인 값으로는 삽입이 불가능합니다."), TEXT("삽입값 에러"), MB_OK);
 				break;
 			}
 
 			//중복값인지 체크
 			for (i = 0; i < totR; i++) {
-				if (lstrcmp(religion[i].code, tCode) == 0 || lstrcmp(religion[i].name, tName) == 0) {
+				if (lstrcmp(religion[i].code, tempBase.code) == 0 || lstrcmp(religion[i].name, tempBase.name) == 0) {
 					isDup = TRUE;
 					break;
 				}
@@ -296,11 +294,10 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 			//중복되지 않았다면 종교 추가해서 리스트뷰에 다시 보임
 			if (isDup == FALSE) {
 				religion = (BASE*)realloc(religion, (totR + 1) * sizeof(BASE));	//종교 포인터 재할당
-				GetWindowText(hCode, religion[totR].code, 3);			//종교코드 edit의 값을 부서포인터 마지막.code 에 담음
-				GetWindowText(hName, religion[totR].name, 21);			//종교코드 edit의 값을 부서포인터 마지막.name 에 담음
-				ListView_DeleteAllItems(hReligionList);		//리스트뷰 비움
-
+				religion[totR] = tempBase;
 				totR++;		//종교갯수++
+
+				ListView_DeleteAllItems(hReligionList);		//리스트뷰 비움
 
 				//리스트뷰에 다시 있는값 채우기
 				for (i = 0; i < totR; i++) {
@@ -318,8 +315,8 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 			}
 
 			//삽입후 코드,이름 컨트롤 빈칸으로 초기화
-			SetWindowText(hCode, TEXT(""));
-			SetWindowText(hName, TEXT(""));
+			SetWindowText(hRCode, TEXT(""));
+			SetWindowText(hRName, TEXT(""));
 
 			break;
 		case IDC_MODIFY:	//수정버튼
@@ -329,21 +326,19 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 				MessageBox(hWnd, TEXT("수정할 항목을 먼저 선택하십시오"), TEXT("알림"), MB_OK);
 			}
 			else {
-				lstrcpy(tCode, TEXT(""));
-				lstrcpy(tName, TEXT(""));
 				//종교코드와 종교이름 edit컨트롤의 값을 tCode,tName에 임시 저장
-				GetWindowText(hCode, tCode, 3);
-				GetWindowText(hName, tName, 21);
+				GetWindowText(hRCode, tempBase.code, lstrlen(tempBase.code));
+				GetWindowText(hRName, tempBase.name, lstrlen(tempBase.name));
 
 				//길이가 0인경우 break
-				if (lstrlen(tCode) == 0 || lstrlen(tName) == 0) {
+				if (lstrlen(tempBase.code) == 0 || lstrlen(tempBase.name) == 0) {
 					MessageBox(hWnd, TEXT("길이가 0인 값으로는 수정이 불가능합니다."), TEXT("수정값 에러"), MB_OK);
 					break;
 				}
 
 				//중복값인지 체크
 				for (i = 0; i < totR; i++) {
-					if (i != ind && (lstrcmp(religion[i].code, tCode) == 0 || lstrcmp(religion[i].name, tName) == 0)) {
+					if (i != ind && (lstrcmp(religion[i].code, tempBase.code) == 0 || lstrcmp(religion[i].name, tempBase.name) == 0)) {
 						isDup = TRUE;
 						break;
 					}
@@ -354,9 +349,8 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 					isDup = FALSE;
 				}
 				else {
-					//ind번째 religion의 값들을 바꿈
-					GetWindowText(hCode, religion[ind].code, 3);
-					GetWindowText(hName, religion[ind].name, 3);
+					//ind번째 religion의 값을 바꿈
+					religion[ind] = tempBase;
 
 					//리스트뷰 비우고 다시채움
 					ListView_DeleteAllItems(hReligionList);
@@ -373,8 +367,8 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 			}
 
 			//수정후 코드,이름 컨트롤 빈칸으로 초기화
-			SetWindowText(hCode, TEXT(""));
-			SetWindowText(hName, TEXT(""));
+			SetWindowText(hRCode, TEXT(""));
+			SetWindowText(hRName, TEXT(""));
 
 			break;
 		case IDC_DEL:
@@ -395,8 +389,8 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 
 			}
 			//삭제후 코드,이름 컨트롤 빈칸으로 초기화
-			SetWindowText(hCode, TEXT(""));
-			SetWindowText(hName, TEXT(""));
+			SetWindowText(hRCode, TEXT(""));
+			SetWindowText(hRName, TEXT(""));
 			break;
 		}
 		return 0;
@@ -410,8 +404,8 @@ LRESULT CALLBACK InitReligionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 		switch (hdr->code) {
 		case LVN_ITEMCHANGED:
 			if (nlv->uChanged == LVIF_STATE && nlv->uNewState == (LVIS_SELECTED | LVIS_FOCUSED)) {
-				SetWindowText(hCode, religion[nlv->iItem].code);
-				SetWindowText(hName, religion[nlv->iItem].name);
+				SetWindowText(hRCode, religion[nlv->iItem].code);
+				SetWindowText(hRName, religion[nlv->iItem].name);
 			}
 			return TRUE;
 		}
@@ -434,7 +428,7 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 	PAINTSTRUCT ps;
 	int i, ind;
 	static BOOL isDup = FALSE;
-	TCHAR tCode[3], tName[21];		//임시 문자열
+	BASE tempBase;		//임시 구조체
 
 	switch (iMessage) {
 	case WM_CREATE:
@@ -465,9 +459,9 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 			ListView_SetItemText(hPositionList, i, 1, (LPWSTR)position[i].name);
 		}
 		//직위코드 edit생성
-		hCode = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 370, 150, 70, 25, hWnd, (HMENU)ID_CODE, g_hInst, NULL);
+		hPCode = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 370, 150, 70, 25, hWnd, (HMENU)ID_CODE, g_hInst, NULL);
 		//직위명 edit생성
-		hName = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 520, 150, 70, 25, hWnd, (HMENU)ID_NAME, g_hInst, NULL);
+		hPName = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER, 520, 150, 70, 25, hWnd, (HMENU)ID_NAME, g_hInst, NULL);
 		//삽입버튼생성
 		CreateWindow(TEXT("button"), TEXT("삽입"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 300, 250, 70, 25, hWnd, (HMENU)IDC_INSERT, g_hInst, NULL);
 		//수정버튼생성
@@ -478,21 +472,20 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
 		case IDC_INSERT:	//삽입버튼
-			lstrcpy(tCode, TEXT(""));
-			lstrcpy(tName, TEXT(""));
+
 			//직위코드와 직위이름 edit컨트롤의 값을 tCode,tName에 임시 저장
-			GetWindowText(hCode, tCode, 3);
-			GetWindowText(hName, tName, 21);
+			GetWindowText(hPCode, tempBase.code, lstrlen(tempBase.code));
+			GetWindowText(hPName, tempBase.name, lstrlen(tempBase.name));
 
 			//길이가 0인경우 break
-			if (lstrlen(tCode) == 0 || lstrlen(tName) == 0) {
+			if (lstrlen(tempBase.code) == 0 || lstrlen(tempBase.name) == 0) {
 				MessageBox(hWnd, TEXT("길이가 0인 값으로는 삽입이 불가능합니다."), TEXT("삽입값 에러"), MB_OK);
 				break;
 			}
 
 			//중복값인지 체크
 			for (i = 0; i < totP; i++) {
-				if (lstrcmp(position[i].code, tCode) == 0 || lstrcmp(position[i].name, tName) == 0) {
+				if (lstrcmp(position[i].code, tempBase.code) == 0 || lstrcmp(position[i].name, tempBase.name) == 0) {
 					isDup = TRUE;
 					break;
 				}
@@ -500,11 +493,10 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 			//중복되지 않았다면 부서 추가해서 리스트뷰에 다시 보임
 			if (isDup == FALSE) {
 				position = (BASE*)realloc(position, (totP + 1) * sizeof(BASE));	//직위 포인터 재할당
-				GetWindowText(hCode, position[totP].code, 3);			//직위코드 edit의 값을 부서포인터 마지막.code 에 담음
-				GetWindowText(hName, position[totP].name, 21);			//직위코드 edit의 값을 부서포인터 마지막.name 에 담음
-				ListView_DeleteAllItems(hPositionList);		//리스트뷰 비움
-
+				position[totP] = tempBase;
 				totP++;		//직위갯수++
+
+				ListView_DeleteAllItems(hPositionList);		//리스트뷰 비움
 
 				//리스트뷰에 다시 있는값 채우기
 				for (i = 0; i < totP; i++) {
@@ -523,8 +515,8 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 			}
 
 			//삽입후 코드,이름 컨트롤 빈칸으로 초기화
-			SetWindowText(hCode, TEXT(""));
-			SetWindowText(hName, TEXT(""));
+			SetWindowText(hPCode, TEXT(""));
+			SetWindowText(hPName, TEXT(""));
 
 			break;
 		case IDC_MODIFY:	//수정버튼
@@ -534,21 +526,20 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 				MessageBox(hWnd, TEXT("수정할 항목을 먼저 선택하십시오"), TEXT("알림"), MB_OK);
 			}
 			else {
-				lstrcpy(tCode, TEXT(""));
-				lstrcpy(tName, TEXT(""));
+
 				//직위코드와 직위이름 edit컨트롤의 값을 tCode,tName에 임시 저장
-				GetWindowText(hCode, tCode, 3);
-				GetWindowText(hName, tName, 21);
+				GetWindowText(hPCode, tempBase.code, lstrlen(tempBase.code));
+				GetWindowText(hPName, tempBase.name, lstrlen(tempBase.name));
 
 				//길이가 0인경우 break
-				if (lstrlen(tCode) == 0 || lstrlen(tName) == 0) {
+				if (lstrlen(tempBase.code) == 0 || lstrlen(tempBase.name) == 0) {
 					MessageBox(hWnd, TEXT("길이가 0인 값으로는 수정이 불가능합니다."), TEXT("수정값 에러"), MB_OK);
 					break;
 				}
 
 				//중복값인지 체크
 				for (i = 0; i < totP; i++) {
-					if (i != ind && (lstrcmp(position[i].code, tCode) == 0 || lstrcmp(position[i].name, tName) == 0)) {
+					if (i != ind && (lstrcmp(position[i].code, tempBase.code) == 0 || lstrcmp(position[i].name, tempBase.name) == 0)) {
 						isDup = TRUE;
 						break;
 					}
@@ -559,8 +550,7 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 				}
 				else {
 					//ind번째 position의 값들을 바꿈
-					GetWindowText(hCode, position[ind].code, 3);
-					GetWindowText(hName, position[ind].name, 21);
+					position[ind] = tempBase;
 
 					//리스트뷰 비우고 다시채움
 					ListView_DeleteAllItems(hPositionList);		//리스트뷰 비움
@@ -577,8 +567,8 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 			}
 
 			//수정후 코드,이름 컨트롤 빈칸으로 초기화
-			SetWindowText(hCode, TEXT(""));
-			SetWindowText(hName, TEXT(""));
+			SetWindowText(hPCode, TEXT(""));
+			SetWindowText(hPName, TEXT(""));
 
 			break;
 		case IDC_DEL:
@@ -597,10 +587,10 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 				totP--;
 				position = (BASE*)realloc(position, totP * sizeof(BASE));
 			}
-			
+
 			//삭제후 코드,이름 컨트롤 빈칸으로 초기화
-			SetWindowText(hCode, TEXT(""));
-			SetWindowText(hName, TEXT(""));
+			SetWindowText(hPCode, TEXT(""));
+			SetWindowText(hPName, TEXT(""));
 
 			break;
 		}
@@ -615,8 +605,8 @@ LRESULT CALLBACK InitPositionMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LP
 		switch (hdr->code) {
 		case LVN_ITEMCHANGED:
 			if (nlv->uChanged == LVIF_STATE && nlv->uNewState == (LVIS_SELECTED | LVIS_FOCUSED)) {
-				SetWindowText(hCode, position[nlv->iItem].code);
-				SetWindowText(hName, position[nlv->iItem].name);
+				SetWindowText(hPCode, position[nlv->iItem].code);
+				SetWindowText(hPName, position[nlv->iItem].name);
 			}
 			return TRUE;
 		}

@@ -16,9 +16,9 @@ typedef struct personalInfo {
 	TCHAR pEmail[255];		//email
 	TCHAR pPhone[2][14];	//연락처1,2
 	SYSTEMTIME pBirth;		//생년월일
-	BOOL pSex;				//성별(TRUE:남자,FALSE:여자)
+	BOOL pSex;				//성별(TRUE:남자, FALSE:여자)
 	TCHAR pPhysical[4][11];	//신장, 체중, 좌시력, 우시력
-	BOOL pFamily;			//기혼여부(FALSE:미혼, TRUE:기혼)
+	BOOL pFamily;			//기혼여부(TRUE:기혼, FALSE:미혼)
 	TCHAR pReligion[255];		//종교
 } PERSONALINFO;
 
