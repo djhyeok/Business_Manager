@@ -12,7 +12,7 @@ extern BASE* buseo;			//부서
 extern BASE* position;		//직위
 extern BASE* religion;		//종교
 extern EMP* workEmp;		//사원
-extern EMP* retireEmp;		//퇴직사원
+extern RETIRE* retireEmp;	//퇴직완료사원
 
 LRESULT CALLBACK MDIWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	CLIENTCREATESTRUCT ccs;
@@ -32,9 +32,9 @@ LRESULT CALLBACK MDIWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPar
 		position = (BASE*)malloc(sizeof(BASE));
 		religion = (BASE*)malloc(sizeof(BASE));
 
-		//초기에 사원,퇴직사원 1개 사이즈로 할당
+		//초기에 사원 1개 사이즈로 할당
 		workEmp = (EMP*)malloc(sizeof(EMP));
-		retireEmp = (EMP*)malloc(sizeof(EMP));
+		retireEmp = (RETIRE*)malloc(sizeof(RETIRE));
 
 		return 0;
 	case WM_COMMAND:
@@ -76,6 +76,15 @@ LRESULT CALLBACK MDIWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPar
 			mcs.style = MDIS_ALLCHILDSTYLES;
 			SendMessage(g_hMDIClient, WM_MDICREATE, 0, (LPARAM)(LPMDICREATESTRUCT)&mcs);
 			break;
+		case ID_RETIRE:
+			mcs.szClass = TEXT("InitRetireEMPMDI");
+			mcs.szTitle = TEXT("퇴직자");
+			mcs.hOwner = g_hInst;
+			mcs.x = mcs.y = CW_USEDEFAULT;
+			mcs.cx = mcs.cy = CW_USEDEFAULT;
+			mcs.style = MDIS_ALLCHILDSTYLES;
+			SendMessage(g_hMDIClient, WM_MDICREATE, 0, (LPARAM)(LPMDICREATESTRUCT)&mcs);
+			break;
 		}
 		return 0;
 	case WM_DESTROY:
@@ -85,7 +94,6 @@ LRESULT CALLBACK MDIWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPar
 		free(position);
 		free(religion);
 		free(workEmp);
-		free(retireEmp);
 		return 0;
 	}
 	return(DefFrameProc(hWnd, g_hMDIClient, iMessage, wParam, lParam));

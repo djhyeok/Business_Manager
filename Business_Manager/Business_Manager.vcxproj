@@ -133,12 +133,14 @@
     <ClCompile Include="Frame.cpp" />
     <ClCompile Include="Frame.h" />
     <ClCompile Include="Emp.cpp" />
+    <ClCompile Include="RetireEmp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Base.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Emp.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="RetireEmp.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Business_Manager.rc" />

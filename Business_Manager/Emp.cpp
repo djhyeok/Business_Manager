@@ -1,28 +1,21 @@
-#include "Emp.h"
 #include "Common.h"
-
-/*
-에디트에 입력한 값을 리스트뷰에 뿌리고 에디트 컨트롤 초기화
-삽입,수정,삭제 후 리스트뷰 다 비우고 다시 데이터수만큼 리스트뷰에 뿌리기
-*/
+#include "Emp.h"
 
 extern HINSTANCE g_hInst;
 extern int totB;			//부서갯수
 extern int totP;			//직위갯수
 extern int totR;			//종교갯수
-extern int totWEmp;			//사원수
-extern int totREmp;			//퇴직사원수
+extern int totEmp;			//사원수
 extern BASE* buseo;			//부서
 extern BASE* position;		//직위
 extern BASE* religion;		//종교
 extern EMP* workEmp;		//사원
-extern EMP* retireEmp;		//퇴직사원
 
 HWND hEMPList, hEmpNo, hEmpBuseo, hEmpPoscode, hEmpIndate, hEmpName1, hEmpName2, hEmpName3, hEmpMale, hEmpFemale, hEmpBirth, hEmpAddress,
 hEmpEmail, hEmpPhone1, hEmpPhone2, hEmpHeight, hEmpWeight, hEmpLefteye, hEmpRighteye, hEmpSingle, hEmpMarriage, hEmpRelligion;	//컨트롤 핸들
 enum {
 	ID_EMPLIST = 1, ID_EMPNO, ID_BUSEO, ID_POSCODE, ID_INDATE, ID_NAME1, ID_NAME2, ID_NAME3, ID_MALE, ID_FEMALE, ID_BIRTH, ID_ADDRESS, ID_EMAIL,
-	ID_PHONE1, ID_PHONE2, ID_HEIGHT, ID_WEIGHT, ID_LEFTEYE, ID_RIGHTEYE, ID_SINGLE, ID_MARRIAGE, ID_RELLIGION, ID_RETIRE, IDC_INSERT, IDC_MODIFY, IDC_DELETE
+	ID_PHONE1, ID_PHONE2, ID_HEIGHT, ID_WEIGHT, ID_LEFTEYE, ID_RIGHTEYE, ID_SINGLE, ID_MARRIAGE, ID_RELLIGION, IDC_RETIRE, IDC_INSERT, IDC_MODIFY
 };
 
 //사원관리 프로시져
@@ -33,7 +26,7 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 	HDC hdc;
 	PAINTSTRUCT ps;
 	INITCOMMONCONTROLSEX icex;
-	int i, ind;
+	int i, j, index, cal;
 	static EMP tempEmp;
 	SYSTEMTIME st;
 	TCHAR str[255];
@@ -180,41 +173,34 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 		ListView_InsertColumn(hEMPList, 18, &COL);
 
 		//리스트뷰에 사원정보 채우기
-		for (i = 0; i < totWEmp; i++) {
-			LI.mask = LVIF_TEXT;
-			LI.iItem = i;
-			LI.iSubItem = 0;
-			LI.pszText = workEmp[i].empNo;
-			ListView_InsertItem(hEMPList, &LI);
-			ListView_SetItemText(hEMPList, i, 1, (LPWSTR)workEmp[i].empBuseo);	//부서
-			ListView_SetItemText(hEMPList, i, 2, (LPWSTR)workEmp[i].empPosCode);//직책
-			wsprintf(str, TEXT("%d.%d.%d"), workEmp[i].empStartYear.wYear, workEmp[i].empStartYear.wMonth, workEmp[i].empStartYear.wDay);
-			ListView_SetItemText(hEMPList, i, 3, str);							//입사일
-			ListView_SetItemText(hEMPList, i, 4, (LPWSTR)workEmp[i].pInfo.pName[0]);//한글이름
-			ListView_SetItemText(hEMPList, i, 5, (LPWSTR)workEmp[i].pInfo.pName[1]);//영문이름
-			ListView_SetItemText(hEMPList, i, 6, (LPWSTR)workEmp[i].pInfo.pName[2]);//한문이름
-			if (workEmp[i].pInfo.pSex == TRUE) {
-				ListView_SetItemText(hEMPList, i, 7, (LPWSTR)TEXT("남"));
+		for (i = 0, j = 0; i < totEmp; i++) {
+			if (workEmp[i].empRetire == 0) {
+				LI.mask = LVIF_TEXT;
+				LI.iItem = j;
+				LI.iSubItem = 0;
+				LI.pszText = workEmp[i].empNo;
+				ListView_InsertItem(hEMPList, &LI);
+				ListView_SetItemText(hEMPList, j, 1, (LPWSTR)workEmp[i].empBuseo);	//부서
+				ListView_SetItemText(hEMPList, j, 2, (LPWSTR)workEmp[i].empPosCode);//직책
+				wsprintf(str, TEXT("%d.%d.%d"), workEmp[i].empStartYear.wYear, workEmp[i].empStartYear.wMonth, workEmp[i].empStartYear.wDay);
+				ListView_SetItemText(hEMPList, j, 3, str);							//입사일
+				ListView_SetItemText(hEMPList, j, 4, (LPWSTR)workEmp[i].pInfo.pName[0]);//한글이름
+				ListView_SetItemText(hEMPList, j, 5, (LPWSTR)workEmp[i].pInfo.pName[1]);//영문이름
+				ListView_SetItemText(hEMPList, j, 6, (LPWSTR)workEmp[i].pInfo.pName[2]);//한문이름
+				ListView_SetItemText(hEMPList, j, 7, (workEmp[i].pInfo.pSex == TRUE) ? (LPWSTR)TEXT("남") : (LPWSTR)TEXT("여"));
+				wsprintf(str, TEXT("%d.%d.%d"), workEmp[i].pInfo.pBirth.wYear, workEmp[i].pInfo.pBirth.wMonth, workEmp[i].pInfo.pBirth.wDay);
+				ListView_SetItemText(hEMPList, j, 8, str);
+				ListView_SetItemText(hEMPList, j, 9, (LPWSTR)workEmp[i].pInfo.pAddress);
+				ListView_SetItemText(hEMPList, j, 10, (LPWSTR)workEmp[i].pInfo.pEmail);
+				ListView_SetItemText(hEMPList, j, 11, (LPWSTR)workEmp[i].pInfo.pPhone[0]);
+				ListView_SetItemText(hEMPList, j, 12, (LPWSTR)workEmp[i].pInfo.pPhone[1]);
+				ListView_SetItemText(hEMPList, j, 13, (LPWSTR)workEmp[i].pInfo.pPhysical[0]);
+				ListView_SetItemText(hEMPList, j, 14, (LPWSTR)workEmp[i].pInfo.pPhysical[1]);
+				ListView_SetItemText(hEMPList, j, 15, (workEmp[i].pInfo.pFamily == TRUE) ? (LPWSTR)TEXT("기혼") : (LPWSTR)TEXT("미혼"));
+				ListView_SetItemText(hEMPList, j, 16, (LPWSTR)workEmp[i].pInfo.pPhysical[2]);
+				ListView_SetItemText(hEMPList, j, 17, (LPWSTR)workEmp[i].pInfo.pPhysical[3]);
+				j++;
 			}
-			else {
-				ListView_SetItemText(hEMPList, i, 7, (LPWSTR)TEXT("여"));
-			}
-			wsprintf(str, TEXT("%d.%d.%d"), workEmp[i].pInfo.pBirth.wYear, workEmp[i].pInfo.pBirth.wMonth, workEmp[i].pInfo.pBirth.wDay);
-			ListView_SetItemText(hEMPList, i, 8, str);
-			ListView_SetItemText(hEMPList, i, 9, (LPWSTR)workEmp[i].pInfo.pAddress);
-			ListView_SetItemText(hEMPList, i, 10, (LPWSTR)workEmp[i].pInfo.pEmail);
-			ListView_SetItemText(hEMPList, i, 11, (LPWSTR)workEmp[i].pInfo.pPhone[0]);
-			ListView_SetItemText(hEMPList, i, 12, (LPWSTR)workEmp[i].pInfo.pPhone[1]);
-			ListView_SetItemText(hEMPList, i, 13, (LPWSTR)workEmp[i].pInfo.pPhysical[0]);
-			ListView_SetItemText(hEMPList, i, 14, (LPWSTR)workEmp[i].pInfo.pPhysical[1]);
-			if (workEmp[i].pInfo.pFamily == TRUE) {
-				ListView_SetItemText(hEMPList, i, 15, (LPWSTR)TEXT("기혼"));
-			}
-			else {
-				ListView_SetItemText(hEMPList, i, 15, (LPWSTR)TEXT("미혼"));
-			}
-			ListView_SetItemText(hEMPList, i, 16, (LPWSTR)workEmp[i].pInfo.pPhysical[2]);
-			ListView_SetItemText(hEMPList, i, 17, (LPWSTR)workEmp[i].pInfo.pPhysical[3]);
 		}
 
 		//1.사원번호 컨트롤 생성
@@ -264,19 +250,17 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 		//16.시력(좌,우) 에디트컨트롤 생성
 		hEmpLefteye = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 615, 150, 25, hWnd, (HMENU)ID_LEFTEYE, g_hInst, NULL);
 		hEmpRighteye = CreateWindow(TEXT("edit"), NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL, 150, 650, 150, 25, hWnd, (HMENU)ID_RIGHTEYE, g_hInst, NULL);
-		//퇴직처리 버튼생성
-		CreateWindow(TEXT("button"), TEXT("퇴직처리"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 100, 685, 130, 30, hWnd, (HMENU)ID_RETIRE, g_hInst, NULL);
 
 		//삽입버튼생성
-		CreateWindow(TEXT("button"), TEXT("삽입"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 50, 720, 70, 25, hWnd, (HMENU)IDC_INSERT, g_hInst, NULL);
+		CreateWindow(TEXT("button"), TEXT("삽입"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 50, 690, 70, 25, hWnd, (HMENU)IDC_INSERT, g_hInst, NULL);
 		//수정버튼생성
-		CreateWindow(TEXT("button"), TEXT("수정"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 130, 720, 70, 25, hWnd, (HMENU)IDC_MODIFY, g_hInst, NULL);
-		//삭제버튼생성
-		CreateWindow(TEXT("button"), TEXT("삭제"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 210, 720, 70, 25, hWnd, (HMENU)IDC_DELETE, g_hInst, NULL);
+		CreateWindow(TEXT("button"), TEXT("수정"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 130, 690, 70, 25, hWnd, (HMENU)IDC_MODIFY, g_hInst, NULL);
+		//퇴직요청 버튼생성
+		CreateWindow(TEXT("button"), TEXT("퇴직요청"), WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON, 210, 690, 100, 25, hWnd, (HMENU)ID_RETIRE, g_hInst, NULL);
 
 		return 0;
 	case WM_COMMAND:
-		switch (LOWORD(wParam)) {		
+		switch (LOWORD(wParam)) {
 		case ID_BUSEO:						//부서 콤보박스의 값 임시 구조체tempEmp에 담음
 			switch (HIWORD(wParam)) {
 			case CBN_SELCHANGE:
@@ -306,11 +290,7 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 			if (SendMessage(hEmpIndate, DTM_GETSYSTEMTIME, 0, (LPARAM)&st) == GDT_VALID) {
 				tempEmp.empStartYear = st;														//입사일
 			}
-			else {
-				MessageBox(hWnd, TEXT("입사일이 선택되지 않았습니다"), TEXT("입사일 선택 오류"), MB_OK);
-				break;
-			}
-			GetWindowText(hEmpName1, tempEmp.pInfo.pName[0],255);								//이름
+			GetWindowText(hEmpName1, tempEmp.pInfo.pName[0], 255);								//이름
 			GetWindowText(hEmpName2, tempEmp.pInfo.pName[1], 255);								//영문이름
 			GetWindowText(hEmpName3, tempEmp.pInfo.pName[2], 255);								//한자이름
 			if (SendMessage(hEmpMale, BM_GETCHECK, 0, 0) == BST_CHECKED) {
@@ -322,10 +302,7 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 			if (SendMessage(hEmpBirth, DTM_GETSYSTEMTIME, 0, (LPARAM)&st) == GDT_VALID) {
 				tempEmp.pInfo.pBirth = st;														//생일
 			}
-			else {
-				MessageBox(hWnd, TEXT("생일이 선택되지 않았습니다"), TEXT("생일 선택 오류"), MB_OK);
-				break;
-			}
+
 			GetWindowText(hEmpAddress, tempEmp.pInfo.pAddress, 255);							//주소
 			GetWindowText(hEmpEmail, tempEmp.pInfo.pEmail, 255);								//전자우편
 			GetWindowText(hEmpPhone1, tempEmp.pInfo.pPhone[0], 14);								//연락처1
@@ -340,6 +317,29 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 			}
 			GetWindowText(hEmpLefteye, tempEmp.pInfo.pPhysical[2], 11);			//시력(좌)
 			GetWindowText(hEmpRighteye, tempEmp.pInfo.pPhysical[3], 11);		//시력(우)
+			//근무여부 초기화
+			tempEmp.empRetire = 0;
+			//사원번호생성
+			wsprintf(tempEmp.empNo, TEXT("%d"), tempEmp.empStartYear.wYear);
+			lstrcat(tempEmp.empNo, tempEmp.empPosCode);
+			if (tempEmp.pInfo.pSex == TRUE) {
+				lstrcat(tempEmp.empNo, TEXT("1"));
+			}
+			else {
+				lstrcat(tempEmp.empNo, TEXT("2"));
+			}
+			cal = totEmp + 1;
+			wsprintf(str, TEXT("%d"), cal / 1000);
+			lstrcat(tempEmp.empNo, str);
+			cal %= 1000;
+			wsprintf(str, TEXT("%d"), cal / 100);
+			lstrcat(tempEmp.empNo, str);
+			cal %= 100;
+			wsprintf(str, TEXT("%d"), cal / 10);
+			lstrcat(tempEmp.empNo, str);
+			cal %= 10;
+			wsprintf(str, TEXT("%d"), cal);
+			lstrcat(tempEmp.empNo, str);
 
 			//모두 입력 및 선택시 재할당 후 값 추가
 			if (lstrlen(tempEmp.empBuseo) && lstrlen(tempEmp.empPosCode) && lstrlen(tempEmp.pInfo.pName[0])
@@ -348,98 +348,255 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 				&& lstrlen(tempEmp.pInfo.pPhysical[0]) && lstrlen(tempEmp.pInfo.pPhysical[1]) && lstrlen(tempEmp.pInfo.pReligion)
 				&& lstrlen(tempEmp.pInfo.pPhysical[2]) && lstrlen(tempEmp.pInfo.pPhysical[3])) {
 
+
 				//컨트롤에서 선택 및 입력하지 않을 시 삽입하지 않음
-				workEmp = (EMP*)realloc(workEmp, (totWEmp + 1) * sizeof(EMP));
-				workEmp[totWEmp] = tempEmp;
-				totWEmp++;		//재직사원수 1증가
+				workEmp = (EMP*)realloc(workEmp, (totEmp + 1) * sizeof(EMP));
+				workEmp[totEmp] = tempEmp;
+				totEmp++;		//재직사원수 1증가
 
 				//리스트뷰 지우고 다시 사원정보 채우기
 				ListView_DeleteAllItems(hEMPList);
-				for (i = 0; i < totWEmp; i++) {
-					LI.mask = LVIF_TEXT;
-					LI.iItem = i;
-					LI.iSubItem = 0;
-					LI.pszText = workEmp[i].empNo;
-					ListView_InsertItem(hEMPList, &LI);
-					ListView_SetItemText(hEMPList, i, 1, (LPWSTR)workEmp[i].empBuseo);				//부서
-					ListView_SetItemText(hEMPList, i, 2, (LPWSTR)workEmp[i].empPosCode);			//직책
-					wsprintf(str, TEXT("%d.%d.%d"), workEmp[i].empStartYear.wYear, workEmp[i].empStartYear.wMonth, workEmp[i].empStartYear.wDay);
-					ListView_SetItemText(hEMPList, i, 3, str);										//입사일
-					ListView_SetItemText(hEMPList, i, 4, (LPWSTR)workEmp[i].pInfo.pName[0]);		//한글이름
-					ListView_SetItemText(hEMPList, i, 5, (LPWSTR)workEmp[i].pInfo.pName[1]);		//영문이름
-					ListView_SetItemText(hEMPList, i, 6, (LPWSTR)workEmp[i].pInfo.pName[2]);		//한문이름
-					if (workEmp[i].pInfo.pSex == TRUE) {											//성별
-						ListView_SetItemText(hEMPList, i, 7, (LPWSTR)TEXT("남"));
+				for (i = 0, j = 0; i < totEmp; i++) {
+					if (workEmp[i].empRetire == 0) {
+						LI.mask = LVIF_TEXT;
+						LI.iItem = j;
+						LI.iSubItem = 0;
+						LI.pszText = workEmp[i].empNo;
+						ListView_InsertItem(hEMPList, &LI);
+						ListView_SetItemText(hEMPList, j, 1, (LPWSTR)workEmp[i].empBuseo);				//부서
+						ListView_SetItemText(hEMPList, j, 2, (LPWSTR)workEmp[i].empPosCode);			//직책
+						wsprintf(str, TEXT("%d.%d.%d"), workEmp[i].empStartYear.wYear, workEmp[i].empStartYear.wMonth, workEmp[i].empStartYear.wDay);
+						ListView_SetItemText(hEMPList, j, 3, str);										//입사일
+						ListView_SetItemText(hEMPList, j, 4, (LPWSTR)workEmp[i].pInfo.pName[0]);		//한글이름
+						ListView_SetItemText(hEMPList, j, 5, (LPWSTR)workEmp[i].pInfo.pName[1]);		//영문이름
+						ListView_SetItemText(hEMPList, j, 6, (LPWSTR)workEmp[i].pInfo.pName[2]);		//한문이름
+						if (workEmp[i].pInfo.pSex == TRUE) {											//성별
+							ListView_SetItemText(hEMPList, j, 7, (LPWSTR)TEXT("남"));
+						}
+						else {
+							ListView_SetItemText(hEMPList, j, 7, (LPWSTR)TEXT("여"));
+						}
+						wsprintf(str, TEXT("%d.%d.%d"), workEmp[i].pInfo.pBirth.wYear, workEmp[i].pInfo.pBirth.wMonth, workEmp[i].pInfo.pBirth.wDay);
+						ListView_SetItemText(hEMPList, j, 8, str);										//생년월일
+						ListView_SetItemText(hEMPList, j, 9, (LPWSTR)workEmp[i].pInfo.pAddress);		//주소
+						ListView_SetItemText(hEMPList, j, 10, (LPWSTR)workEmp[i].pInfo.pEmail);			//전자우편
+						ListView_SetItemText(hEMPList, j, 11, (LPWSTR)workEmp[i].pInfo.pPhone[0]);		//연락처1
+						ListView_SetItemText(hEMPList, j, 12, (LPWSTR)workEmp[i].pInfo.pPhone[1]);		//연락처2
+						ListView_SetItemText(hEMPList, j, 13, (LPWSTR)workEmp[i].pInfo.pPhysical[0]);	//신장
+						ListView_SetItemText(hEMPList, j, 14, (LPWSTR)workEmp[i].pInfo.pPhysical[1]);	//체중
+						if (workEmp[i].pInfo.pFamily == TRUE) {											//결혼관계
+							ListView_SetItemText(hEMPList, j, 15, (LPWSTR)TEXT("기혼"));
+						}
+						else {
+							ListView_SetItemText(hEMPList, j, 15, (LPWSTR)TEXT("미혼"));
+						}
+						ListView_SetItemText(hEMPList, j, 16, (LPWSTR)workEmp[i].pInfo.pReligion);		//종교
+						ListView_SetItemText(hEMPList, j, 17, (LPWSTR)workEmp[i].pInfo.pPhysical[2]);	//좌시력
+						ListView_SetItemText(hEMPList, j, 18, (LPWSTR)workEmp[i].pInfo.pPhysical[3]);	//우시력
+						j++;
 					}
-					else {
-						ListView_SetItemText(hEMPList, i, 7, (LPWSTR)TEXT("여"));
-					}
-					wsprintf(str, TEXT("%d.%d.%d"), workEmp[i].pInfo.pBirth.wYear, workEmp[i].pInfo.pBirth.wMonth, workEmp[i].pInfo.pBirth.wDay);
-					ListView_SetItemText(hEMPList, i, 8, str);										//생년월일
-					ListView_SetItemText(hEMPList, i, 9, (LPWSTR)workEmp[i].pInfo.pAddress);		//주소
-					ListView_SetItemText(hEMPList, i, 10, (LPWSTR)workEmp[i].pInfo.pEmail);			//전자우편
-					ListView_SetItemText(hEMPList, i, 11, (LPWSTR)workEmp[i].pInfo.pPhone[0]);		//연락처1
-					ListView_SetItemText(hEMPList, i, 12, (LPWSTR)workEmp[i].pInfo.pPhone[1]);		//연락처2
-					ListView_SetItemText(hEMPList, i, 13, (LPWSTR)workEmp[i].pInfo.pPhysical[0]);	//신장
-					ListView_SetItemText(hEMPList, i, 14, (LPWSTR)workEmp[i].pInfo.pPhysical[1]);	//체중
-					if (workEmp[i].pInfo.pFamily == TRUE) {											//결혼관계
-						ListView_SetItemText(hEMPList, i, 15, (LPWSTR)TEXT("기혼"));
-					}
-					else {
-						ListView_SetItemText(hEMPList, i, 15, (LPWSTR)TEXT("미혼"));
-					}
-					ListView_SetItemText(hEMPList, i, 16, (LPWSTR)workEmp[i].pInfo.pReligion);		//종교
-					ListView_SetItemText(hEMPList, i, 17, (LPWSTR)workEmp[i].pInfo.pPhysical[2]);	//좌시력
-					ListView_SetItemText(hEMPList, i, 18, (LPWSTR)workEmp[i].pInfo.pPhysical[3]);	//우시력
 				}
 			}
-			else {	
+			else {
 				MessageBox(hWnd, TEXT("길이가 0인 값은 추가할 수 없습니다."), TEXT("입력값 오류"), MB_OK);
 			}
 
-//사원번호,부서,직책,입사일,이름,영문이름,한문이름,성별,생년월일,주소,전자우편,연락처1,연락처2,신장,체중,결혼관계,종교,시력(좌),시력(우)
 			//입력 컨트롤들 빈칸으로 초기화
-			SetWindowText(hEmpNo,TEXT(""));
-			SetWindowText(hEmpBuseo, TEXT(""));
-			SetWindowText(hEmpPoscode, TEXT(""));
-			//st = workEmp[nlv->iItem].empStartYear;
-			//SendMessage(hEmpIndate, DTM_SETSYSTEMTIME, GDT_VALID, (LPARAM)&st);
+			SetWindowText(hEmpNo, TEXT(""));
 			SetWindowText(hEmpName1, TEXT(""));
 			SetWindowText(hEmpName2, TEXT(""));
 			SetWindowText(hEmpName3, TEXT(""));
-			/*if (workEmp[nlv->iItem].pInfo.pSex == TRUE) {
-				SendMessage(hWnd, BST_CHECKED, ID_MALE, lParam);
-			}
-			else {
-				SendMessage(hWnd, BST_CHECKED, ID_FEMALE, lParam);
-			}*/
-			//st = workEmp[nlv->iItem].pInfo.pBirth;
-			//SendMessage(hEmpBirth, DTM_SETSYSTEMTIME, GDT_VALID, (LPARAM)&st);
 			SetWindowText(hEmpAddress, TEXT(""));
 			SetWindowText(hEmpEmail, TEXT(""));
 			SetWindowText(hEmpPhone1, TEXT(""));
 			SetWindowText(hEmpPhone2, TEXT(""));
 			SetWindowText(hEmpHeight, TEXT(""));
 			SetWindowText(hEmpWeight, TEXT(""));
-			/*if (workEmp[nlv->iItem].pInfo.pFamily == TRUE) {
-				SendMessage(hWnd, BST_CHECKED, ID_MARRIAGE, lParam);
-			}
-			else {
-				SendMessage(hWnd, BST_CHECKED, ID_SINGLE, lParam);
-			}*/
-			SetWindowText(hEmpRelligion, TEXT(""));
 			SetWindowText(hEmpLefteye, TEXT(""));
 			SetWindowText(hEmpRighteye, TEXT(""));
+			SendMessage(hEmpBuseo, CB_SETCURSEL, (WPARAM)-1, 0);
+			SendMessage(hEmpPoscode, CB_SETCURSEL, (WPARAM)-1, 0);
+			SendMessage(hEmpRelligion, CB_SETCURSEL, (WPARAM)-1, 0);
 
 			break;
 		case IDC_MODIFY:	//수정 버튼
+			index = ListView_GetNextItem(hEMPList, -1, LVNI_ALL | LVNI_SELECTED);
+			if (index == -1) {
+				MessageBox(hWnd, TEXT("수정할 사원을 먼저 선택하십시오"), TEXT("알림"), MB_OK);
+			}
+			else {
+				GetWindowText(hEmpNo, tempEmp.empNo, 12);
+				if (SendMessage(hEmpIndate, DTM_GETSYSTEMTIME, 0, (LPARAM)&st) == GDT_VALID) {
+					tempEmp.empStartYear = st;														//입사일
+				}
+				GetWindowText(hEmpName1, tempEmp.pInfo.pName[0], 255);								//이름
+				GetWindowText(hEmpName2, tempEmp.pInfo.pName[1], 255);								//영문이름
+				GetWindowText(hEmpName3, tempEmp.pInfo.pName[2], 255);								//한자이름
+				if (SendMessage(hEmpMale, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+					tempEmp.pInfo.pSex = TRUE;														//남자
+				}
+				else {
+					tempEmp.pInfo.pSex = FALSE;														//여자
+				}
+				if (SendMessage(hEmpBirth, DTM_GETSYSTEMTIME, 0, (LPARAM)&st) == GDT_VALID) {
+					tempEmp.pInfo.pBirth = st;														//생일
+				}
 
-			break;
-		case IDC_DELETE:	//삭제 버튼
+				GetWindowText(hEmpAddress, tempEmp.pInfo.pAddress, 255);							//주소
+				GetWindowText(hEmpEmail, tempEmp.pInfo.pEmail, 255);								//전자우편
+				GetWindowText(hEmpPhone1, tempEmp.pInfo.pPhone[0], 14);								//연락처1
+				GetWindowText(hEmpPhone2, tempEmp.pInfo.pPhone[1], 14);								//연락처2
+				GetWindowText(hEmpHeight, tempEmp.pInfo.pPhysical[0], 11);							//신장
+				GetWindowText(hEmpWeight, tempEmp.pInfo.pPhysical[1], 11);							//체중
+				if (SendMessage(hEmpMarriage, BM_GETCHECK, 0, 0) == BST_CHECKED) {
+					tempEmp.pInfo.pFamily = TRUE;													//기혼
+				}
+				else {
+					tempEmp.pInfo.pFamily = FALSE;													//미혼
+				}
+				GetWindowText(hEmpLefteye, tempEmp.pInfo.pPhysical[2], 11);			//시력(좌)
+				GetWindowText(hEmpRighteye, tempEmp.pInfo.pPhysical[3], 11);		//시력(우)
+				for (i = 0; i < totEmp; i++) {
+					if (lstrcmp(workEmp[i].empNo, tempEmp.empNo) == 0) {
+						workEmp[i] = tempEmp;
+					}
+				}
+				workEmp[index] = tempEmp;
 
+				//리스트뷰 지우고 다시 사원정보 채우기
+				ListView_DeleteAllItems(hEMPList);
+				for (i = 0, j = 0; i < totEmp; i++) {
+					if (workEmp[i].empRetire == 0) {
+						LI.mask = LVIF_TEXT;
+						LI.iItem = j;
+						LI.iSubItem = 0;
+						LI.pszText = workEmp[i].empNo;
+						ListView_InsertItem(hEMPList, &LI);
+						ListView_SetItemText(hEMPList, j, 1, (LPWSTR)workEmp[i].empBuseo);				//부서
+						ListView_SetItemText(hEMPList, j, 2, (LPWSTR)workEmp[i].empPosCode);			//직책
+						wsprintf(str, TEXT("%d.%d.%d"), workEmp[i].empStartYear.wYear, workEmp[i].empStartYear.wMonth, workEmp[i].empStartYear.wDay);
+						ListView_SetItemText(hEMPList, j, 3, str);										//입사일
+						ListView_SetItemText(hEMPList, j, 4, (LPWSTR)workEmp[i].pInfo.pName[0]);		//한글이름
+						ListView_SetItemText(hEMPList, j, 5, (LPWSTR)workEmp[i].pInfo.pName[1]);		//영문이름
+						ListView_SetItemText(hEMPList, j, 6, (LPWSTR)workEmp[i].pInfo.pName[2]);		//한문이름
+						if (workEmp[i].pInfo.pSex == TRUE) {											//성별
+							ListView_SetItemText(hEMPList, j, 7, (LPWSTR)TEXT("남"));
+						}
+						else {
+							ListView_SetItemText(hEMPList, j, 7, (LPWSTR)TEXT("여"));
+						}
+						wsprintf(str, TEXT("%d.%d.%d"), workEmp[i].pInfo.pBirth.wYear, workEmp[i].pInfo.pBirth.wMonth, workEmp[i].pInfo.pBirth.wDay);
+						ListView_SetItemText(hEMPList, j, 8, str);										//생년월일
+						ListView_SetItemText(hEMPList, j, 9, (LPWSTR)workEmp[i].pInfo.pAddress);		//주소
+						ListView_SetItemText(hEMPList, j, 10, (LPWSTR)workEmp[i].pInfo.pEmail);			//전자우편
+						ListView_SetItemText(hEMPList, j, 11, (LPWSTR)workEmp[i].pInfo.pPhone[0]);		//연락처1
+						ListView_SetItemText(hEMPList, j, 12, (LPWSTR)workEmp[i].pInfo.pPhone[1]);		//연락처2
+						ListView_SetItemText(hEMPList, j, 13, (LPWSTR)workEmp[i].pInfo.pPhysical[0]);	//신장
+						ListView_SetItemText(hEMPList, j, 14, (LPWSTR)workEmp[i].pInfo.pPhysical[1]);	//체중
+						if (workEmp[i].pInfo.pFamily == TRUE) {											//결혼관계
+							ListView_SetItemText(hEMPList, j, 15, (LPWSTR)TEXT("기혼"));
+						}
+						else {
+							ListView_SetItemText(hEMPList, j, 15, (LPWSTR)TEXT("미혼"));
+						}
+						ListView_SetItemText(hEMPList, j, 16, (LPWSTR)workEmp[i].pInfo.pReligion);		//종교
+						ListView_SetItemText(hEMPList, j, 17, (LPWSTR)workEmp[i].pInfo.pPhysical[2]);	//좌시력
+						ListView_SetItemText(hEMPList, j, 18, (LPWSTR)workEmp[i].pInfo.pPhysical[3]);	//우시력
+						j++;
+
+						//입력 컨트롤들 빈칸으로 초기화
+						SetWindowText(hEmpNo, TEXT(""));
+						SetWindowText(hEmpName1, TEXT(""));
+						SetWindowText(hEmpName2, TEXT(""));
+						SetWindowText(hEmpName3, TEXT(""));
+						SetWindowText(hEmpAddress, TEXT(""));
+						SetWindowText(hEmpEmail, TEXT(""));
+						SetWindowText(hEmpPhone1, TEXT(""));
+						SetWindowText(hEmpPhone2, TEXT(""));
+						SetWindowText(hEmpHeight, TEXT(""));
+						SetWindowText(hEmpWeight, TEXT(""));
+						SetWindowText(hEmpLefteye, TEXT(""));
+						SetWindowText(hEmpRighteye, TEXT(""));
+						SendMessage(hEmpBuseo, CB_SETCURSEL, (WPARAM)-1, 0);
+						SendMessage(hEmpPoscode, CB_SETCURSEL, (WPARAM)-1, 0);
+						SendMessage(hEmpRelligion, CB_SETCURSEL, (WPARAM)-1, 0);
+					}
+				}
+			}
 			break;
 		case ID_RETIRE:		//퇴직처리 버튼
+			index = ListView_GetNextItem(hEMPList, -1, LVNI_ALL | LVNI_SELECTED);
+			if (index == -1) {
+				MessageBox(hWnd, TEXT("퇴직처리할 사원을 먼저 선택하십시오"), TEXT("알림"), MB_OK);
+			}
+			else {
+				//선택된 사원의 근무상태를 퇴직요청으로 변경
+				GetWindowText(hEmpNo, tempEmp.empNo, 12);
+				for (i = 0; i < totEmp; i++) {
+					if (lstrcmp(workEmp[i].empNo, tempEmp.empNo) == 0) {
+						workEmp[i].empRetire = 1;
+					}
+				}
+				//리스트뷰 지우고 다시 사원정보 채우기
+				ListView_DeleteAllItems(hEMPList);
+				for (i = 0, j = 0; i < totEmp; i++) {
+					if (workEmp[i].empRetire == 0) {
+						LI.mask = LVIF_TEXT;
+						LI.iItem = j;
+						LI.iSubItem = 0;
+						LI.pszText = workEmp[i].empNo;
+						ListView_InsertItem(hEMPList, &LI);
+						ListView_SetItemText(hEMPList, j, 1, (LPWSTR)workEmp[i].empBuseo);				//부서
+						ListView_SetItemText(hEMPList, j, 2, (LPWSTR)workEmp[i].empPosCode);			//직책
+						wsprintf(str, TEXT("%d.%d.%d"), workEmp[i].empStartYear.wYear, workEmp[i].empStartYear.wMonth, workEmp[i].empStartYear.wDay);
+						ListView_SetItemText(hEMPList, j, 3, str);										//입사일
+						ListView_SetItemText(hEMPList, j, 4, (LPWSTR)workEmp[i].pInfo.pName[0]);		//한글이름
+						ListView_SetItemText(hEMPList, j, 5, (LPWSTR)workEmp[i].pInfo.pName[1]);		//영문이름
+						ListView_SetItemText(hEMPList, j, 6, (LPWSTR)workEmp[i].pInfo.pName[2]);		//한문이름
+						if (workEmp[i].pInfo.pSex == TRUE) {											//성별
+							ListView_SetItemText(hEMPList, j, 7, (LPWSTR)TEXT("남"));
+						}
+						else {
+							ListView_SetItemText(hEMPList, j, 7, (LPWSTR)TEXT("여"));
+						}
+						wsprintf(str, TEXT("%d.%d.%d"), workEmp[i].pInfo.pBirth.wYear, workEmp[i].pInfo.pBirth.wMonth, workEmp[i].pInfo.pBirth.wDay);
+						ListView_SetItemText(hEMPList, j, 8, str);										//생년월일
+						ListView_SetItemText(hEMPList, j, 9, (LPWSTR)workEmp[i].pInfo.pAddress);		//주소
+						ListView_SetItemText(hEMPList, j, 10, (LPWSTR)workEmp[i].pInfo.pEmail);			//전자우편
+						ListView_SetItemText(hEMPList, j, 11, (LPWSTR)workEmp[i].pInfo.pPhone[0]);		//연락처1
+						ListView_SetItemText(hEMPList, j, 12, (LPWSTR)workEmp[i].pInfo.pPhone[1]);		//연락처2
+						ListView_SetItemText(hEMPList, j, 13, (LPWSTR)workEmp[i].pInfo.pPhysical[0]);	//신장
+						ListView_SetItemText(hEMPList, j, 14, (LPWSTR)workEmp[i].pInfo.pPhysical[1]);	//체중
+						if (workEmp[i].pInfo.pFamily == TRUE) {											//결혼관계
+							ListView_SetItemText(hEMPList, j, 15, (LPWSTR)TEXT("기혼"));
+						}
+						else {
+							ListView_SetItemText(hEMPList, j, 15, (LPWSTR)TEXT("미혼"));
+						}
+						ListView_SetItemText(hEMPList, j, 16, (LPWSTR)workEmp[i].pInfo.pReligion);		//종교
+						ListView_SetItemText(hEMPList, j, 17, (LPWSTR)workEmp[i].pInfo.pPhysical[2]);	//좌시력
+						ListView_SetItemText(hEMPList, j, 18, (LPWSTR)workEmp[i].pInfo.pPhysical[3]);	//우시력
+						j++;
 
+						//입력 컨트롤들 빈칸으로 초기화
+						SetWindowText(hEmpNo, TEXT(""));
+						SetWindowText(hEmpName1, TEXT(""));
+						SetWindowText(hEmpName2, TEXT(""));
+						SetWindowText(hEmpName3, TEXT(""));
+						SetWindowText(hEmpAddress, TEXT(""));
+						SetWindowText(hEmpEmail, TEXT(""));
+						SetWindowText(hEmpPhone1, TEXT(""));
+						SetWindowText(hEmpPhone2, TEXT(""));
+						SetWindowText(hEmpHeight, TEXT(""));
+						SetWindowText(hEmpWeight, TEXT(""));
+						SetWindowText(hEmpLefteye, TEXT(""));
+						SetWindowText(hEmpRighteye, TEXT(""));
+						SendMessage(hEmpBuseo, CB_SETCURSEL, (WPARAM)-1, 0);
+						SendMessage(hEmpPoscode, CB_SETCURSEL, (WPARAM)-1, 0);
+						SendMessage(hEmpRelligion, CB_SETCURSEL, (WPARAM)-1, 0);
+					}
+				}
+			}
 			break;
 		}
 		return 0;
@@ -449,57 +606,78 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 		hdr = (LPNMHDR)lParam;
 		nlv = (LPNMLISTVIEW)lParam;
 
-		//부서리스트뷰에서 선택된 항목 컨트롤들로 뿌리기
-		switch (hdr->code) {
-		case LVN_ITEMCHANGED:
-			if (nlv->uChanged == LVIF_STATE && nlv->uNewState == (LVIS_SELECTED | LVIS_FOCUSED)) {
-//사원번호,부서,직책,입사일,이름,영문이름,한문이름,성별,생년월일,주소,전자우편,연락처1,연락처2,신장,체중,결혼관계,종교,시력(좌),시력(우)
+		//리스트뷰에서 선택된 항목 컨트롤들로 뿌리기
+		if (hdr->hwndFrom == hEMPList) {
+			switch (hdr->code) {
+			case LVN_ITEMCHANGED:
+				if (nlv->uChanged == LVIF_STATE && nlv->uNewState == (LVIS_SELECTED | LVIS_FOCUSED)) {
+					//사원번호,부서,직책,입사일,이름,영문이름,한문이름,성별,생년월일,주소,전자우편,연락처1,연락처2,신장,체중,결혼관계,종교,시력(좌),시력(우)
+					SetWindowText(hEmpNo, workEmp[nlv->iItem].empNo);
+					SetWindowText(hEmpName1, workEmp[nlv->iItem].pInfo.pName[0]);
+					SetWindowText(hEmpName2, workEmp[nlv->iItem].pInfo.pName[1]);
+					SetWindowText(hEmpName3, workEmp[nlv->iItem].pInfo.pName[2]);
+					SetWindowText(hEmpAddress, workEmp[nlv->iItem].pInfo.pAddress);
+					SetWindowText(hEmpEmail, workEmp[nlv->iItem].pInfo.pEmail);
+					SetWindowText(hEmpPhone1, workEmp[nlv->iItem].pInfo.pPhone[0]);
+					SetWindowText(hEmpPhone2, workEmp[nlv->iItem].pInfo.pPhone[1]);
+					SetWindowText(hEmpHeight, workEmp[nlv->iItem].pInfo.pPhysical[0]);
+					SetWindowText(hEmpWeight, workEmp[nlv->iItem].pInfo.pPhysical[1]);
+					SetWindowText(hEmpLefteye, workEmp[nlv->iItem].pInfo.pPhysical[2]);
+					SetWindowText(hEmpRighteye, workEmp[nlv->iItem].pInfo.pPhysical[3]);
 
-				SetWindowText(hEmpNo, workEmp[nlv->iItem].empNo);
-				for (i = 0; i < totB; i++) {
-					if (lstrcmp(workEmp[nlv->iItem].empBuseo, (LPCWSTR)buseo[i].name) == 0) {
-						break;
+					if (workEmp[nlv->iItem].pInfo.pSex == TRUE) {
+						SendMessage(hEmpMale, BM_SETCHECK, BST_CHECKED, 0);
+						SendMessage(hEmpFemale, BM_SETCHECK, BST_UNCHECKED, 0);
 					}
-				}
-				SendMessage(hEmpBuseo, CB_SETCURSEL, i, 0);
-				//SetWindowText(hEmpBuseo, workEmp[nlv->iItem].empBuseo);
-				for (i = 0; i < totP; i++) {
-					if (lstrcmp(workEmp[nlv->iItem].empPosCode, (LPCWSTR)position[i].name) == 0) {
-						break;
+					else {
+						SendMessage(hEmpFemale, BM_SETCHECK, BST_CHECKED, 0);
+						SendMessage(hEmpMale, BM_SETCHECK, BST_UNCHECKED, 0);
 					}
+
+					if (workEmp[nlv->iItem].pInfo.pFamily == TRUE) {
+						SendMessage(hEmpMarriage, BM_SETCHECK, BST_CHECKED, 0);
+						SendMessage(hEmpSingle, BM_SETCHECK, BST_UNCHECKED, 0);
+					}
+					else {
+						SendMessage(hEmpSingle, BM_SETCHECK, BST_CHECKED, 0);
+						SendMessage(hEmpMarriage, BM_SETCHECK, BST_UNCHECKED, 0);
+					}
+
+					for (i = 0; i < totB; i++) {
+						if (lstrcmp(workEmp[nlv->iItem].empBuseo, (LPCWSTR)buseo[i].name) == 0) {
+							SendMessage(hEmpBuseo, CB_SETCURSEL, i, 0);
+							lstrcpy(tempEmp.empBuseo, buseo[i].name);
+							break;
+						}
+					}
+					GetWindowText(hEmpBuseo, str, 255);
+
+					for (i = 0; i < totP; i++) {
+						if (lstrcmp(workEmp[nlv->iItem].empPosCode, (LPCWSTR)position[i].name) == 0) {
+							SendMessage(hEmpPoscode, CB_SETCURSEL, i, 0);
+							lstrcpy(tempEmp.empPosCode, position[i].name);
+							break;
+						}
+					}
+					GetWindowText(hEmpPoscode, str, 255);
+
+					for (i = 0; i < totR; i++) {
+						if (lstrcmp(workEmp[nlv->iItem].pInfo.pReligion, (LPCWSTR)religion[i].name) == 0) {
+							SendMessage(hEmpRelligion, CB_SETCURSEL, i, 0);
+							lstrcpy(tempEmp.pInfo.pReligion, religion[i].name);
+							break;
+						}
+					}
+					GetWindowText(hEmpRelligion, str, 255);
+
+					st = workEmp[nlv->iItem].empStartYear;
+					SendMessage(hEmpIndate, DTM_SETSYSTEMTIME, GDT_VALID, (LPARAM)&st);
+
+					st = workEmp[nlv->iItem].pInfo.pBirth;
+					SendMessage(hEmpBirth, DTM_SETSYSTEMTIME, GDT_VALID, (LPARAM)&st);
 				}
-				SendMessage(hEmpPoscode, CB_SETCURSEL, i, 0);
-				//SetWindowText(hEmpPoscode, workEmp[nlv->iItem].empPosCode);
-				st = workEmp[nlv->iItem].empStartYear;
-				SendMessage(hEmpIndate, DTM_SETSYSTEMTIME, GDT_VALID, (LPARAM)&st);
-				SetWindowText(hEmpName1, workEmp[nlv->iItem].pInfo.pName[0]);
-				SetWindowText(hEmpName2, workEmp[nlv->iItem].pInfo.pName[1]);
-				SetWindowText(hEmpName3, workEmp[nlv->iItem].pInfo.pName[2]);
-				if (workEmp[nlv->iItem].pInfo.pSex == TRUE) {
-					SendMessage(hWnd, BST_CHECKED, ID_MALE, lParam);
-				}
-				else {
-					SendMessage(hWnd, BST_CHECKED, ID_FEMALE, lParam);
-				}
-				st = workEmp[nlv->iItem].pInfo.pBirth;
-				SendMessage(hEmpBirth, DTM_SETSYSTEMTIME, GDT_VALID, (LPARAM)&st);
-				SetWindowText(hEmpAddress, workEmp[nlv->iItem].pInfo.pAddress);
-				SetWindowText(hEmpEmail, workEmp[nlv->iItem].pInfo.pEmail);
-				SetWindowText(hEmpPhone1, workEmp[nlv->iItem].pInfo.pPhone[0]);
-				SetWindowText(hEmpPhone2, workEmp[nlv->iItem].pInfo.pPhone[1]);
-				SetWindowText(hEmpHeight, workEmp[nlv->iItem].pInfo.pPhysical[0]);
-				SetWindowText(hEmpWeight, workEmp[nlv->iItem].pInfo.pPhysical[1]);
-				if (workEmp[nlv->iItem].pInfo.pFamily == TRUE) {
-					SendMessage(hWnd, BST_CHECKED, ID_MARRIAGE, lParam);
-				}
-				else {
-					SendMessage(hWnd, BST_CHECKED, ID_SINGLE, lParam);
-				}
-				SetWindowText(hEmpRelligion, workEmp[nlv->iItem].pInfo.pReligion);
-				SetWindowText(hEmpLefteye, workEmp[nlv->iItem].pInfo.pPhysical[2]);
-				SetWindowText(hEmpRighteye, workEmp[nlv->iItem].pInfo.pPhysical[3]);
+				return TRUE;
 			}
-			return TRUE;
 		}
 		break;
 	case WM_PAINT:
