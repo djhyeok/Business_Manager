@@ -2,8 +2,9 @@
 #include "RetireEmp.h"
 
 /*
-	퇴직처리 여부를 LV에 보여줌
-	퇴직사유는 index 즉, int형으로 저장
+	가족사항등록
+	-등본상 동거인들
+	부,모,조부,조모 등 한명만 있어야하는 것 예외처리
 */
 
 extern HINSTANCE g_hInst;

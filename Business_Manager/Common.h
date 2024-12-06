@@ -41,4 +41,11 @@ typedef struct retireInfo {
 	int retireReason;		//퇴직사유
 }RETIRE;
 
+typedef struct familyMember {
+	TCHAR empNo[12];		//사원번호
+	TCHAR name[255];		//이름
+	TCHAR age[5];			//나이
+	TCHAR relation[255];	//관계
+	TCHAR job[255];			//직업(회사원,공무원,자영업,무직,학생)
+};
 #endif
