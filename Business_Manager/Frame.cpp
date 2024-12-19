@@ -1,5 +1,4 @@
 #include "Frame.h"
-#include "Common.h"
 
 #define IDM_WINDOWCHILD 8000
 
@@ -13,6 +12,7 @@ extern BASE* position;		//직위
 extern BASE* religion;		//종교
 extern EMP* workEmp;		//사원
 extern RETIRE* retireEmp;	//퇴직완료사원
+extern FAMILY* family;		//사원가족
 
 LRESULT CALLBACK MDIWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam) {
 	CLIENTCREATESTRUCT ccs;
@@ -27,14 +27,13 @@ LRESULT CALLBACK MDIWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPar
 		g_hMDIClient = CreateWindow(TEXT("MDIClient"), NULL, WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN, 0, 0, 0, 0, hWnd, (HMENU)NULL, g_hInst, (LPSTR)&ccs);
 		ShowWindow(g_hMDIClient, SW_SHOW);
 
-		//초기에 부서,직위,종교 1개 사이즈로 할당
+		//초기에 1개 사이즈로 할당
 		buseo = (BASE*)malloc(sizeof(BASE));
 		position = (BASE*)malloc(sizeof(BASE));
 		religion = (BASE*)malloc(sizeof(BASE));
-
-		//초기에 사원 1개 사이즈로 할당
 		workEmp = (EMP*)malloc(sizeof(EMP));
 		retireEmp = (RETIRE*)malloc(sizeof(RETIRE));
+		family = (FAMILY*)malloc(sizeof(FAMILY));
 
 		return 0;
 	case WM_COMMAND:
@@ -85,6 +84,15 @@ LRESULT CALLBACK MDIWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPar
 			mcs.style = MDIS_ALLCHILDSTYLES;
 			SendMessage(g_hMDIClient, WM_MDICREATE, 0, (LPARAM)(LPMDICREATESTRUCT)&mcs);
 			break;
+		case ID_FAMILY:
+			mcs.szClass = TEXT("InitEMPFamilyMDI");
+			mcs.szTitle = TEXT("가족사항");
+			mcs.hOwner = g_hInst;
+			mcs.x = mcs.y = CW_USEDEFAULT;
+			mcs.cx = mcs.cy = CW_USEDEFAULT;
+			mcs.style = MDIS_ALLCHILDSTYLES;
+			SendMessage(g_hMDIClient, WM_MDICREATE, 0, (LPARAM)(LPMDICREATESTRUCT)&mcs);
+			break;
 		}
 		return 0;
 	case WM_DESTROY:
@@ -94,6 +102,8 @@ LRESULT CALLBACK MDIWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPar
 		free(position);
 		free(religion);
 		free(workEmp);
+		free(retireEmp);
+
 		return 0;
 	}
 	return(DefFrameProc(hWnd, g_hMDIClient, iMessage, wParam, lParam));

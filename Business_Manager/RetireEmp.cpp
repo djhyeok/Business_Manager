@@ -1,11 +1,4 @@
-#include "Common.h"
 #include "RetireEmp.h"
-
-/*
-	가족사항등록
-	-등본상 동거인들
-	부,모,조부,조모 등 한명만 있어야하는 것 예외처리
-*/
 
 extern HINSTANCE g_hInst;
 extern int totB;			//부서갯수
@@ -36,7 +29,6 @@ LRESULT CALLBACK InitRetireEMPMDIPROC(HWND hWnd, UINT iMessage, WPARAM wParam, L
 	INITCOMMONCONTROLSEX icex;
 	int i, j;
 	static RETIRE tempRet;
-	TCHAR str[255];
 	TCHAR retReason[6][255] = { TEXT("정년퇴직"),TEXT("명예퇴직"),TEXT("권고사직"),TEXT("이직"),TEXT("희망퇴직"),TEXT("기타") };
 
 	switch (iMessage) {
@@ -165,7 +157,8 @@ LRESULT CALLBACK InitRetireEMPMDIPROC(HWND hWnd, UINT iMessage, WPARAM wParam, L
 		return 0;
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
-		case ID_RETBUSEO:						//부서 콤보박스의 값 임시 구조체tempRet에 담음
+		case ID_RETBUSEO:		//퇴직부서 콤보박스
+			//부서 콤보박스의 값 임시 구조체tempRet에 담음
 			switch (HIWORD(wParam)) {
 			case CBN_SELCHANGE:
 				i = SendMessage(hRetEmpBuseo, CB_GETCURSEL, 0, 0);
@@ -173,7 +166,8 @@ LRESULT CALLBACK InitRetireEMPMDIPROC(HWND hWnd, UINT iMessage, WPARAM wParam, L
 				break;
 			}
 			break;
-		case ID_RETREASON:					//퇴직사유 콤보박스의 값 임시 구조체tempRet에 담음
+		case ID_RETREASON:		//퇴직사유 콤보박스
+			//퇴직사유 콤보박스의 값 임시 구조체tempRet에 담음
 			switch (HIWORD(wParam)) {
 			case CBN_SELCHANGE:
 				tempRet.retireReason = SendMessage(hRetEmpReason, CB_GETCURSEL, 0, 0);

@@ -3,6 +3,7 @@
 #include "Base.h"
 #include "Common.h"
 #include "RetireEmp.h"
+#include "Family.h"
 
 HINSTANCE g_hInst;
 LPCTSTR lpszClass = TEXT("BusinessManager");
@@ -11,13 +12,15 @@ HWND g_hMDIClient;	//클라이언트 윈도우 핸들
 int totB = 0;		//부서갯수
 int totP = 0;		//직위갯수
 int totR = 0;		//종교갯수
-int totEmp = 0;		//총사원수
+int totEmp = 0;		//전체사원수
 int totRetEmp = 0;	//퇴직완료사원수
+int totFamily = 0;	//전체사원가족수
 BASE* buseo;		//부서
 BASE* position;		//직위
 BASE* religion;		//종교
 EMP* workEmp;		//사원
-RETIRE *retireEmp;	//퇴직완료사원
+RETIRE* retireEmp;	//퇴직완료사원
+FAMILY* family;		//사원가족
 
 //인사관리 프로그램
 
@@ -79,6 +82,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 
 	WndClass.lpszClassName = TEXT("InitRetireEMPMDI");
 	WndClass.lpfnWndProc = InitRetireEMPMDIPROC;
+	WndClass.hIcon = LoadIcon(NULL, IDI_ASTERISK);
+	WndClass.lpszMenuName = NULL;
+	WndClass.cbWndExtra = sizeof(DWORD);	//여분의 메모리
+	RegisterClass(&WndClass);
+
+	WndClass.lpszClassName = TEXT("InitEMPFamilyMDI");
+	WndClass.lpfnWndProc = InitEMPFamilyMDIPROC;
 	WndClass.hIcon = LoadIcon(NULL, IDI_ASTERISK);
 	WndClass.lpszMenuName = NULL;
 	WndClass.cbWndExtra = sizeof(DWORD);	//여분의 메모리

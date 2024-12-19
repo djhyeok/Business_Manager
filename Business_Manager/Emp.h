@@ -4,7 +4,7 @@
 
 #include <windows.h>
 #include <CommCtrl.h>
-#include "Base.h"
+#include "Common.h"
 #include "resource.h"
 
 LRESULT CALLBACK InitEMPMDIProc(HWND, UINT, WPARAM, LPARAM);	//사원 MDI 윈도우 프로시져

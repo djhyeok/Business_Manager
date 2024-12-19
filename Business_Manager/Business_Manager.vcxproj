@@ -130,6 +130,7 @@
   <ItemGroup>
     <ClCompile Include="Base.cpp" />
     <ClCompile Include="Business_Manager.cpp" />
+    <ClCompile Include="Family.cpp" />
     <ClCompile Include="Frame.cpp" />
     <ClCompile Include="Frame.h" />
     <ClCompile Include="Emp.cpp" />
@@ -139,6 +140,7 @@
     <ClInclude Include="Base.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Emp.h" />
+    <ClInclude Include="Family.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="RetireEmp.h" />
   </ItemGroup>

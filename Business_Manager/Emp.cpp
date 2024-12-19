@@ -1,4 +1,3 @@
-#include "Common.h"
 #include "Emp.h"
 
 extern HINSTANCE g_hInst;
@@ -321,7 +320,7 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 			tempEmp.empRetire = 0;
 			//사원번호생성
 			wsprintf(tempEmp.empNo, TEXT("%d"), tempEmp.empStartYear.wYear);
-			lstrcat(tempEmp.empNo, tempEmp.empPosCode);
+			lstrcat(tempEmp.empNo, tempEmp.empBuseo);
 			if (tempEmp.pInfo.pSex == TRUE) {
 				lstrcat(tempEmp.empNo, TEXT("1"));
 			}
@@ -577,25 +576,24 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 						ListView_SetItemText(hEMPList, j, 17, (LPWSTR)workEmp[i].pInfo.pPhysical[2]);	//좌시력
 						ListView_SetItemText(hEMPList, j, 18, (LPWSTR)workEmp[i].pInfo.pPhysical[3]);	//우시력
 						j++;
-
-						//입력 컨트롤들 빈칸으로 초기화
-						SetWindowText(hEmpNo, TEXT(""));
-						SetWindowText(hEmpName1, TEXT(""));
-						SetWindowText(hEmpName2, TEXT(""));
-						SetWindowText(hEmpName3, TEXT(""));
-						SetWindowText(hEmpAddress, TEXT(""));
-						SetWindowText(hEmpEmail, TEXT(""));
-						SetWindowText(hEmpPhone1, TEXT(""));
-						SetWindowText(hEmpPhone2, TEXT(""));
-						SetWindowText(hEmpHeight, TEXT(""));
-						SetWindowText(hEmpWeight, TEXT(""));
-						SetWindowText(hEmpLefteye, TEXT(""));
-						SetWindowText(hEmpRighteye, TEXT(""));
-						SendMessage(hEmpBuseo, CB_SETCURSEL, (WPARAM)-1, 0);
-						SendMessage(hEmpPoscode, CB_SETCURSEL, (WPARAM)-1, 0);
-						SendMessage(hEmpRelligion, CB_SETCURSEL, (WPARAM)-1, 0);
 					}
 				}
+				//입력 컨트롤들 빈칸으로 초기화
+				SetWindowText(hEmpNo, TEXT(""));
+				SetWindowText(hEmpName1, TEXT(""));
+				SetWindowText(hEmpName2, TEXT(""));
+				SetWindowText(hEmpName3, TEXT(""));
+				SetWindowText(hEmpAddress, TEXT(""));
+				SetWindowText(hEmpEmail, TEXT(""));
+				SetWindowText(hEmpPhone1, TEXT(""));
+				SetWindowText(hEmpPhone2, TEXT(""));
+				SetWindowText(hEmpHeight, TEXT(""));
+				SetWindowText(hEmpWeight, TEXT(""));
+				SetWindowText(hEmpLefteye, TEXT(""));
+				SetWindowText(hEmpRighteye, TEXT(""));
+				SendMessage(hEmpBuseo, CB_SETCURSEL, (WPARAM)-1, 0);
+				SendMessage(hEmpPoscode, CB_SETCURSEL, (WPARAM)-1, 0);
+				SendMessage(hEmpRelligion, CB_SETCURSEL, (WPARAM)-1, 0);
 			}
 			break;
 		}
@@ -649,8 +647,7 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 							lstrcpy(tempEmp.empBuseo, buseo[i].name);
 							break;
 						}
-					}
-					GetWindowText(hEmpBuseo, str, 255);
+					}					
 
 					for (i = 0; i < totP; i++) {
 						if (lstrcmp(workEmp[nlv->iItem].empPosCode, (LPCWSTR)position[i].name) == 0) {
@@ -659,7 +656,6 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 							break;
 						}
 					}
-					GetWindowText(hEmpPoscode, str, 255);
 
 					for (i = 0; i < totR; i++) {
 						if (lstrcmp(workEmp[nlv->iItem].pInfo.pReligion, (LPCWSTR)religion[i].name) == 0) {
@@ -668,7 +664,6 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 							break;
 						}
 					}
-					GetWindowText(hEmpRelligion, str, 255);
 
 					st = workEmp[nlv->iItem].empStartYear;
 					SendMessage(hEmpIndate, DTM_SETSYSTEMTIME, GDT_VALID, (LPARAM)&st);

@@ -47,5 +47,5 @@ typedef struct familyMember {
 	TCHAR age[5];			//나이
 	TCHAR relation[255];	//관계
 	TCHAR job[255];			//직업(회사원,공무원,자영업,무직,학생)
-};
+} FAMILY;
 #endif

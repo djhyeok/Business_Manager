@@ -1,5 +1,4 @@
-#include "Base.h"
-#include "Common.h"
+#include "Base.h";
 
 extern HINSTANCE g_hInst;
 HWND hBuseoList;			//부서리스트뷰 핸들
