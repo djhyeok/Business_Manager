@@ -93,6 +93,15 @@ LRESULT CALLBACK MDIWndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lPar
 			mcs.style = MDIS_ALLCHILDSTYLES;
 			SendMessage(g_hMDIClient, WM_MDICREATE, 0, (LPARAM)(LPMDICREATESTRUCT)&mcs);
 			break;
+		case ID_REPORT:
+			mcs.szClass = TEXT("InitReportMDI");
+			mcs.szTitle = TEXT("º¸°í¼­");
+			mcs.hOwner = g_hInst;
+			mcs.x = mcs.y = CW_USEDEFAULT;
+			mcs.cx = mcs.cy = CW_USEDEFAULT;
+			mcs.style = MDIS_ALLCHILDSTYLES;
+			SendMessage(g_hMDIClient, WM_MDICREATE, 0, (LPARAM)(LPMDICREATESTRUCT)&mcs);
+			break;
 		}
 		return 0;
 	case WM_DESTROY:

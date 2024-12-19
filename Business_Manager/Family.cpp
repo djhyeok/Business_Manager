@@ -180,14 +180,14 @@ LRESULT CALLBACK InitEMPFamilyMDIPROC(HWND hWnd, UINT iMessage, WPARAM wParam, L
 			else {
 				GetWindowText(hFamName, tempFam.name, 255);
 				GetWindowText(hFamAge, tempFam.age, 5);
-				GetWindowText(hFamJob, tempFam.job, 255);
-				GetWindowText(hFamRel, tempFam.relation, 255);
+				//GetWindowText(hFamJob, tempFam.job, 255);
+				//GetWindowText(hFamRel, tempFam.relation, 255);
 
 				for (i = 0; i < ListView_GetItemCount(hFamilyLV); i++) {
 					ListView_GetItemText(hFamilyLV, i, 3, str, 255);
 					if ((lstrcmp(tempFam.relation, famRelation[0]) == 0 || lstrcmp(tempFam.relation, famRelation[1]) == 0 ||
 						lstrcmp(tempFam.relation, famRelation[2]) == 2 || lstrcmp(tempFam.relation, famRelation[3]) == 3 ||
-						lstrcmp(tempFam.relation, famRelation[4]) == 4) && lstrcmp(tempFam.job, str) == 0) {
+						lstrcmp(tempFam.relation, famRelation[4]) == 4) && lstrcmp(tempFam.relation, str) == 0) {
 						MessageBox(hWnd, TEXT("관계설정오류"), NULL, MB_OK);
 						SendMessage(hFamRel, CB_SETCURSEL, (WPARAM)-1, 0);
 						lstrcpy(tempFam.relation, TEXT(""));
@@ -206,6 +206,10 @@ LRESULT CALLBACK InitEMPFamilyMDIPROC(HWND hWnd, UINT iMessage, WPARAM wParam, L
 					ListView_SetItemText(hFamilyLV, ListView_GetItemCount(hFamilyLV) - 1, 4, (LPWSTR)tempFam.job);
 				}
 			}
+			SetWindowText(hFamName, TEXT(""));
+			SetWindowText(hFamAge, TEXT(""));
+			SendMessage(hFamJob, CB_SETCURSEL, (WPARAM)-1, 0);
+			SendMessage(hFamRel, CB_SETCURSEL, (WPARAM)-1, 0);
 			break;
 		case ID_FAMMODIFY:		//수정버튼
 			i = ListView_GetNextItem(hFamilyLV, -1, LVNI_ALL | LVNI_SELECTED);
@@ -345,16 +349,16 @@ LRESULT CALLBACK InitEMPFamilyMDIPROC(HWND hWnd, UINT iMessage, WPARAM wParam, L
 					SetWindowText(hFamName, str);
 					ListView_GetItemText(hFamilyLV, nlv->iItem, 2, str, 5);
 					SetWindowText(hFamAge, str);
-
+					ListView_GetItemText(hFamilyLV, nlv->iItem, 3, str, 255);
 					for (i = 0; i < 8; i++) {
-						if (lstrcmp(family[nlv->iItem].relation, (LPCWSTR)famRelation[i]) == 0) {
+						if (lstrcmp(str, (LPCWSTR)famRelation[i]) == 0) {
 							SendMessage(hFamRel, CB_SETCURSEL, i, 0);
 							break;
 						}
 					}
-
+					ListView_GetItemText(hFamilyLV, nlv->iItem, 4, str, 255);
 					for (i = 0; i < 6; i++) {
-						if (lstrcmp(family[nlv->iItem].job, (LPCWSTR)famJob[i]) == 0) {
+						if (lstrcmp(str, (LPCWSTR)famJob[i]) == 0) {
 							SendMessage(hFamJob, CB_SETCURSEL, i, 0);
 							break;
 						}

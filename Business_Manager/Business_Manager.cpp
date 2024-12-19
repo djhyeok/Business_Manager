@@ -80,6 +80,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	WndClass.cbWndExtra = sizeof(DWORD);	//여분의 메모리
 	RegisterClass(&WndClass);
 
+	//퇴직사원 MDI윈도우 클래스 등록
 	WndClass.lpszClassName = TEXT("InitRetireEMPMDI");
 	WndClass.lpfnWndProc = InitRetireEMPMDIPROC;
 	WndClass.hIcon = LoadIcon(NULL, IDI_ASTERISK);
@@ -87,8 +88,17 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	WndClass.cbWndExtra = sizeof(DWORD);	//여분의 메모리
 	RegisterClass(&WndClass);
 
+	//사원 가족사항 MDI윈도우 클래스 등록
 	WndClass.lpszClassName = TEXT("InitEMPFamilyMDI");
 	WndClass.lpfnWndProc = InitEMPFamilyMDIPROC;
+	WndClass.hIcon = LoadIcon(NULL, IDI_ASTERISK);
+	WndClass.lpszMenuName = NULL;
+	WndClass.cbWndExtra = sizeof(DWORD);	//여분의 메모리
+	RegisterClass(&WndClass);
+
+	//보고서 MDI윈도우 클래스 등록
+	WndClass.lpszClassName = TEXT("InitReportMDI");
+	WndClass.lpfnWndProc = InitReportMDIPROC;
 	WndClass.hIcon = LoadIcon(NULL, IDI_ASTERISK);
 	WndClass.lpszMenuName = NULL;
 	WndClass.cbWndExtra = sizeof(DWORD);	//여분의 메모리

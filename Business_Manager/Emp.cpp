@@ -37,7 +37,6 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 		//리스트뷰 생성
 		hEMPList = CreateWindow(WC_LISTVIEW, NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SHOWSELALWAYS, 350, 10, 1150, 700, hWnd, (HMENU)ID_EMPLIST, g_hInst, NULL);
 		//리스트에 헤더추가
-		//(사원번호,부서,직책,입사일,이름,성별,생년월일,주소,전자우편,연락처,신장,체중,시력(좌),시력(우),결혼관계,종교)
 		COL.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 		COL.fmt = LVCFMT_LEFT;
 		COL.cx = 150;
@@ -320,7 +319,11 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 			tempEmp.empRetire = 0;
 			//사원번호생성
 			wsprintf(tempEmp.empNo, TEXT("%d"), tempEmp.empStartYear.wYear);
-			lstrcat(tempEmp.empNo, tempEmp.empBuseo);
+			for (i = 0; i < totB; i++) {
+				if (lstrcmp(tempEmp.empBuseo, buseo[i].name) == 0) {
+					lstrcat(tempEmp.empNo, buseo[i].code);
+				}
+			}
 			if (tempEmp.pInfo.pSex == TRUE) {
 				lstrcat(tempEmp.empNo, TEXT("1"));
 			}
@@ -647,7 +650,7 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 							lstrcpy(tempEmp.empBuseo, buseo[i].name);
 							break;
 						}
-					}					
+					}
 
 					for (i = 0; i < totP; i++) {
 						if (lstrcmp(workEmp[nlv->iItem].empPosCode, (LPCWSTR)position[i].name) == 0) {
