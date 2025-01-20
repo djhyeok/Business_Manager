@@ -36,7 +36,7 @@ LRESULT CALLBACK InitEMPMDIProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM 
 
 		//리스트뷰 생성
 		hEMPList = CreateWindow(WC_LISTVIEW, NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SHOWSELALWAYS, 350, 10, 1150, 700, hWnd, (HMENU)ID_EMPLIST, g_hInst, NULL);
-		//리스트에 헤더추가
+		//리스트뷰 헤더추가
 		COL.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 		COL.fmt = LVCFMT_LEFT;
 		COL.cx = 150;

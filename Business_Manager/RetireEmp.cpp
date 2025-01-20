@@ -35,6 +35,7 @@ LRESULT CALLBACK InitRetireEMPMDIPROC(HWND hWnd, UINT iMessage, WPARAM wParam, L
 	case WM_CREATE:
 		InitCommonControlsEx(&icex);
 
+		tempRet.retireReason = -1;
 		//리스트뷰 생성
 		hRetReqEMPList = CreateWindow(WC_LISTVIEW, NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SHOWSELALWAYS, 100, 60, 340, 500, hWnd, (HMENU)ID_RETREQEMPLIST, g_hInst, NULL);
 		hRetEMPList = CreateWindow(WC_LISTVIEW, NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | LVS_REPORT | LVS_SHOWSELALWAYS, 600, 60, 600, 500, hWnd, (HMENU)ID_RETEMPLIST, g_hInst, NULL);
@@ -177,7 +178,7 @@ LRESULT CALLBACK InitRetireEMPMDIPROC(HWND hWnd, UINT iMessage, WPARAM wParam, L
 		case IDC_RETBUTTON:		//퇴직처리버튼
 			GetWindowText(hRetReqEmpPhone, tempRet.empPhone, 14);		//연락처 edit의 값을 tempRet.empPhone에 대입
 			//연락처와 command에서 받은 부서,사유가 유효한가
-			if (tempRet.empBuseo && lstrlen(tempRet.empPhone) && tempRet.retireReason) {
+			if (lstrlen(tempRet.empBuseo) && lstrlen(tempRet.empPhone) && tempRet.retireReason != -1) {
 				//tempRet로 값 복사
 				GetWindowText(hRetEmpNo, tempRet.empNo, 12);				//사원번호
 				GetWindowText(hRetEmpName1, tempRet.empName, 255);		//이름
@@ -199,6 +200,7 @@ LRESULT CALLBACK InitRetireEMPMDIPROC(HWND hWnd, UINT iMessage, WPARAM wParam, L
 				SendMessage(hRetReqEMPBuseo, CB_SETCURSEL, (WPARAM)-1, 0);
 				SendMessage(hRetEmpReason, CB_SETCURSEL, (WPARAM)-1, 0);
 
+				//두 리스트뷰 새로고침
 				ListView_DeleteAllItems(hRetReqEMPList);
 				for (i = 0, j = 0; i < totEmp; i++) {
 					if (workEmp[i].empRetire == 1) {
@@ -226,6 +228,7 @@ LRESULT CALLBACK InitRetireEMPMDIPROC(HWND hWnd, UINT iMessage, WPARAM wParam, L
 					ListView_SetItemText(hRetEMPList, j, 4, (LPWSTR)retReason[retireEmp[i].retireReason]);	//퇴직사유
 					ListView_SetItemText(hRetEMPList, j, 5, (LPWSTR)retireEmp[i].empPhone);				//연락처
 				}
+				tempRet.retireReason = -1;
 			}
 			else {
 				MessageBox(hWnd, TEXT("정보입력오류입니다."), NULL, MB_OK);
@@ -245,12 +248,12 @@ LRESULT CALLBACK InitRetireEMPMDIPROC(HWND hWnd, UINT iMessage, WPARAM wParam, L
 			case LVN_ITEMCHANGED:
 				if (nlv->uChanged == LVIF_STATE && nlv->uNewState == (LVIS_SELECTED | LVIS_FOCUSED)) {
 					ListView_GetItemText(hRetReqEMPList, nlv->iItem, 0, tempRet.empNo, 12);
-					SetWindowText(hRetEmpNo, tempRet.empNo);
 					ListView_GetItemText(hRetReqEMPList, nlv->iItem, 1, tempRet.empBuseo, 255);
-					SetWindowText(hRetEmpBuseo, tempRet.empBuseo);
 					ListView_GetItemText(hRetReqEMPList, nlv->iItem, 2, tempRet.empPoscode, 255);
-					SetWindowText(hRetEmpPoscode, tempRet.empPoscode);
 					ListView_GetItemText(hRetReqEMPList, nlv->iItem, 3, tempRet.empName, 255);
+					SetWindowText(hRetEmpNo, tempRet.empNo);
+					SetWindowText(hRetEmpBuseo, tempRet.empBuseo);
+					SetWindowText(hRetEmpPoscode, tempRet.empPoscode);
 					SetWindowText(hRetEmpName1, tempRet.empName);
 				}
 				return TRUE;
