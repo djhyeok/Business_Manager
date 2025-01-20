@@ -323,7 +323,7 @@ LRESULT CALLBACK InitReportMDIPROC(HWND hWnd, UINT iMessage, WPARAM wParam, LPAR
 											}
 											else {
 												ListView_SetItemText(hReportEmpLV, j, 5, (LPWSTR)TEXT("여"));				//여
-											}
+											} 
 										}
 									}
 									else {		//남,재직
